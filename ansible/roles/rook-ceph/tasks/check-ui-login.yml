@@ -1,0 +1,24 @@
+---
+# file: roles/rook-ceph/tasks/check-ui-login.yml
+
+- name: get admin user password for rook-ceph ui access https://{{ rook_ceph.ui.host }}
+  shell: |
+    echo "$(kubectl get secret rook-ceph-dashboard-password -n rook-ceph  -o go-template='{% raw %}{{.data.password | base64decode}}{% endraw %}')"
+  register: admin_user_password_result
+  become: true
+  become_user: kubeadmin
+
+- name: store admin user password for rook-ceph ui access https://{{ rook_ceph.ui.host }}
+  copy:
+    content: "{{ admin_user_password_result.stdout }}"
+    dest: "/var/log/{{ rook_ceph.ui.host }}"
+
+- name: fetch admin user password for rook-ceph ui access https://{{ rook_ceph.ui.host }}
+  fetch:
+    src: "/var/log/{{ rook_ceph.ui.host }}"
+    dest: "{{ fetch_directory }}/"
+    flat: yes
+
+- name: copy and paste admin user password printed below
+  debug: 
+    msg: "{{ admin_user_password_result.stdout }}"

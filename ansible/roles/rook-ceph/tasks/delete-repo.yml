@@ -1,0 +1,7 @@
+---
+# file: roles/rook-ceph/tasks/delete-repo.yml
+
+- name: rm folder /home/kubeadmin/rook-ceph
+  file:
+    path: /home/kubeadmin/rook-ceph
+    state: absent

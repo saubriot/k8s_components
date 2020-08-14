@@ -1,0 +1,11 @@
+---
+# file: roles/prometheus/tasks/install.yml
+
+- include_tasks: "install-repo.yml"
+  when: task == "repo" or task == "all"
+
+- include_tasks: "install-operator.yml"
+  when: task == "operator" or task == "all"
+
+- include_tasks: "install-grafana-ui.yml"
+  when: task == "grafana-ui" or task == "all"

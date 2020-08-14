@@ -1,0 +1,5 @@
+---
+# file: roles/rook-ceph-nodes/tasks/install.yml
+
+- include_tasks: "roles/rook-ceph-nodes/tasks/install-mount-points.yml"
+  when: task == "mount-points" or task == "all"

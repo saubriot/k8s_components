@@ -1,0 +1,5 @@
+---
+# file: roles/rook-ceph/tasks/check.yml
+
+- include_tasks: "check-ui-login.yml"
+  when: task == "ui-login" or task == "all"

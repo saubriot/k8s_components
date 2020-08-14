@@ -1,0 +1,14 @@
+---
+# file: roles/template/tasks/delete-mount-points.yml
+
+- name: delete folder {{ rook_ceph.dataDirHostPath }}
+  file:
+    path: "{{ rook_ceph.dataDirHostPath }}"
+    state: absent
+  become: true
+
+- name: delete folder {{ rook_ceph.storagePath }}
+  file:
+    path: "{{ rook_ceph.storagePath }}"
+    state: absent
+  become: true

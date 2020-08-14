@@ -1,0 +1,14 @@
+---
+# file: roles/prometheus/tasks/install-repo.yml
+
+- name: rm folder /home/kubeadmin/prometheus
+  file:
+    path: /home/kubeadmin/prometheus
+    state: absent
+
+- git:
+    repo: https://github.com/coreos/kube-prometheus.git
+    dest: /home/kubeadmin/prometheus
+    version: master
+  become: true
+  become_user: kubeadmin

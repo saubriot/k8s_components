@@ -1,0 +1,23 @@
+---
+# file: roles/rook-ceph/tasks/delete.yml
+
+- include_tasks: "delete-ui.yml"
+  when: task == "ui" or task == "all"
+
+- include_tasks: "delete-storage-class.yml"
+  when: task == "storage-class" or task == "all"
+
+- include_tasks: "delete-toolbox.yml"
+  when: task == "toolbox" or task == "all"
+
+- include_tasks: "delete-cluster.yml"
+  when: task == "cluster" or task == "all"
+
+- include_tasks: "delete-label-nodes.yml"
+  when: task == "label-nodes" or task == "all"
+
+- include_tasks: "delete-operator.yml"
+  when: task == "operator" or task == "all"
+
+- include_tasks: "delete-repo.yml"
+  when: task == "repo" or task == "all"

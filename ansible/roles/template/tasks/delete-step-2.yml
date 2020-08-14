@@ -1,0 +1,5 @@
+---
+# file: roles/template/tasks/delete-step-2.yml
+
+- debug:
+    msg: "operation={{ operation }} task={{ task }}"

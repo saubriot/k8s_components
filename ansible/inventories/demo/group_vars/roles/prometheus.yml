@@ -1,0 +1,11 @@
+
+# grafana configuration
+
+grafana:
+  ca:
+    csr_C: EU
+    csr_L: paris
+    csr_ST: france
+  ui:
+    csr_CN: grafana.k8s.europe
+    host: grafana.k8s.europe

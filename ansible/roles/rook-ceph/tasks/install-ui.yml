@@ -1,0 +1,70 @@
+---
+# file: roles/rook-ceph/tasks/install-ui.yml
+
+- name: create file /home/kubeadmin/cfssl/rook-ceph-csr.json
+  copy:
+    content: |
+      {
+          "CN": "{{ rook_ceph.ui.csr_CN }}",
+          "hosts": [
+              "{{ rook_ceph.ui.host }}"
+          ],
+          "key": {
+              "algo": "rsa",
+              "size": 2048
+          },
+          "names": [
+              {
+                  "C": "{{ rook_ceph.ui.ca.csr_C }}",
+                  "L": "{{ rook_ceph.ui.ca.csr_L }}",
+                  "ST": "{{ rook_ceph.ui.ca.csr_ST }}"
+              }
+          ]
+      }
+    dest: /home/kubeadmin/cfssl/rook-ceph-csr.json
+  become: true
+  become_user: kubeadmin
+
+- name: cfssl gencert
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=web-servers rook-ceph-csr.json | cfssljson -bare rook-ceph
+  become: true
+  become_user: kubeadmin
+
+- name: create secret tls-secret
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    kubectl create secret tls tls-secret --key ./rook-ceph-key.pem --cert rook-ceph.pem -n rook-ceph
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/rook-ceph/rook-ceph-nginx.yaml
+  copy:
+    content: |
+      apiVersion: extensions/v1beta1
+      kind: Ingress
+      metadata:
+        name: rook-ceph-nginx
+        namespace: rook-ceph
+        annotations:
+          kubernetes.io/ingress.class: nginx
+      spec:
+        tls:
+        - secretName: tls-secret
+        rules:
+        - host: {{ rook_ceph.ui.host }}
+          http:
+            paths:
+            - path: /
+              backend:
+                serviceName: rook-ceph-mgr-dashboard
+                servicePort: dashboard
+    dest: /home/kubeadmin/rook-ceph/rook-ceph-nginx.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: apply ui nginx ingress
+  shell: kubectl apply -f /home/kubeadmin/rook-ceph/rook-ceph-nginx.yaml
+  become: true
+  become_user: kubeadmin

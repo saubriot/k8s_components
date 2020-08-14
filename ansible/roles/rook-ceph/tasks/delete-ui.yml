@@ -1,0 +1,16 @@
+---
+# file: roles/rook-ceph/tasks/delete-ui.yml
+
+- name: delete ui nginx ingress
+  shell: kubectl delete -f /home/kubeadmin/rook-ceph/rook-ceph-nginx.yaml
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: delete secret tls-secret
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    kubectl delete secret tls-secret -n rook-ceph
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true

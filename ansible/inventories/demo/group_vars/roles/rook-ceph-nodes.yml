@@ -1,0 +1,8 @@
+---
+
+# rook-ceph configuration
+
+rook_ceph:
+  dataDirHostPath: /var/lib/rook
+  storagePath: /data/rook
+

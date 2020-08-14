@@ -1,0 +1,7 @@
+---
+# file: roles/prometheus/tasks/delete-repo.yml
+
+- name: rm folder /home/kubeadmin/prometheus
+  file:
+    path: /home/kubeadmin/prometheus
+    state: absent

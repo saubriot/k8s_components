@@ -1,0 +1,8 @@
+[kubeadmin]
+paris.europe ansible_host=192.168.10.10
+
+[rook-ceph-nodes]
+roma.europe ansible_host=192.168.10.12
+madrid.europe ansible_host=192.168.10.13
+lisboa.europe ansible_host=192.168.10.14
+

@@ -1,0 +1,5 @@
+---
+# file: roles/rook-ceph-nodes/tasks/delete.yml
+
+- include_tasks: "roles/rook-ceph-nodes/tasks/delete-mount-points.yml"
+  when: task == "mount-points" or task == "all"

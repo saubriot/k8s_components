@@ -1,0 +1,10 @@
+---
+# file: roles/prometheus/tasks/delete-operator.yml
+
+- name: delete prometheus operator
+  shell: |
+    cd /home/kubeadmin/prometheus
+    kubectl delete --ignore-not-found=true -f manifests/ -f manifests/setup
+  become: true
+  become_user: kubeadmin
+

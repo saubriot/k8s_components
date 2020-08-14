@@ -1,0 +1,8 @@
+---
+# file: rook-ceph.yml
+- hosts: kubeadmin
+  become: true
+  roles:
+    - rook-ceph
+  vars_files:
+    - "{{ inventory_dir }}/group_vars/roles/rook-ceph.yml"

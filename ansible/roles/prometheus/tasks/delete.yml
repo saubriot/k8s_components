@@ -1,0 +1,11 @@
+---
+# file: roles/prometheus/tasks/delete.yml
+
+- include_tasks: "delete-grafana-ui.yml"
+  when: task == "grafana-ui" or task == "all"
+
+- include_tasks: "delete-operator.yml"
+  when: task == "operator" or task == "all"
+
+- include_tasks: "delete-repo.yml"
+  when: task == "repo" or task == "all"

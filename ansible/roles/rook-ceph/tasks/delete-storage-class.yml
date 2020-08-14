@@ -1,0 +1,10 @@
+---
+# file: roles/rook-ceph/tasks/delete-storage-class.yml
+
+- name: delete rook-ceph new storage class "rook-ceph-block"
+  shell: |
+    cd /home/kubeadmin/rook-ceph
+    kubectl delete -f storageclass.yaml
+  become: true
+  become_user: kubeadmin
+  ignore_errors: yes

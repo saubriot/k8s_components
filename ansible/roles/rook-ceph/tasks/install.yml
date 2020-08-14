@@ -1,0 +1,24 @@
+---
+# file: roles/rook-ceph/tasks/install.yml
+
+- include_tasks: "install-repo.yml"
+  when: task == "repo" or task == "all"
+
+- include_tasks: "install-operator.yml"
+  when: task == "operator" or task == "all"
+
+- include_tasks: "install-label-nodes.yml"
+  when: task == "label-nodes" or task == "all"
+
+- include_tasks: "install-cluster.yml"
+  when: task == "cluster" or task == "all"
+
+- include_tasks: "install-toolbox.yml"
+  when: task == "toolbox" or task == "all"
+
+- include_tasks: "install-storage-class.yml"
+  when: task == "storage-class" or task == "all"
+
+- include_tasks: "install-ui.yml"
+  when: task == "ui" or task == "all"
+

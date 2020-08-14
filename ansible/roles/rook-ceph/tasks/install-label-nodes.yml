@@ -1,0 +1,10 @@
+---
+# file: roles/rook-ceph/tasks/install-label-nodes.yml
+
+- name: "label rook-ceph nodes {{ rook_ceph.label.nodes_key }}:{{ rook_ceph.label.nodes_value }}"
+  shell: |
+    kubectl label nodes {{ item }} {{ rook_ceph.label.nodes_key }}={{ rook_ceph.label.nodes_value }} --overwrite
+  become: true
+  become_user: kubeadmin
+  vars:
+  with_items: "{{ rook_ceph.nodes }}"

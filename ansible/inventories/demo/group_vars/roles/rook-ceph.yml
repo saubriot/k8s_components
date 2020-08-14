@@ -1,0 +1,24 @@
+
+# rook-ceph configuration
+
+rook_ceph:
+  dataDirHostPath: /var/lib/rook
+  storagePath: /data/rook
+  count:
+    mon: 3
+    osd: 3
+    replica: 2
+  nodes: 
+    - roma.europe
+    - madrid.europe
+    - lisboa.europe
+  label:
+    nodes_key: role
+    nodes_value: storage-node
+  ui:
+    csr_CN: rook-ceph.k8s.europe
+    host: rook-ceph.k8s.europe
+    ca:
+      csr_C: EU
+      csr_L: paris
+      csr_ST: france

@@ -1,0 +1,9 @@
+---
+# file: roles/rook-ceph/tasks/install-repo.yml
+
+- git:
+    repo: https://github.com/rook/rook.git
+    dest: /home/kubeadmin/rook-ceph
+    version: release-1.2
+  become: true
+  become_user: kubeadmin

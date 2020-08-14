@@ -1,0 +1,17 @@
+---
+# file: roles/prometheus/tasks/delete-grafana-ui.yml
+
+- name: delete ui nginx ingress
+  shell: kubectl delete -f /home/kubeadmin/prometheus/grafana-nginx.yaml
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: delete secret tls-secret
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    kubectl delete secret tls-secret -n monitoring
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+

@@ -1,0 +1,10 @@
+---
+# file: roles/rook-ceph/tasks/delete-cluster.yml
+
+- name: delete rook-ceph new cluster "my-cluster"
+  shell: |
+    cd /home/kubeadmin/rook-ceph
+    kubectl delete -f my-cluster.yaml
+  become: true
+  become_user: kubeadmin
+  ignore_errors: yes

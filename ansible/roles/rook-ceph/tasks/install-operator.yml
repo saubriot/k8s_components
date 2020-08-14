@@ -1,0 +1,10 @@
+---
+# file: roles/rook-ceph/tasks/install-operator.yml
+
+- name: install rook-ceph operator
+  shell: |
+    cd /home/kubeadmin/rook-ceph/cluster/examples/kubernetes/ceph
+    kubectl apply -f common.yaml
+    kubectl apply -f operator.yaml
+  become: true
+  become_user: kubeadmin

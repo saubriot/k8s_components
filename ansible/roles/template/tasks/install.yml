@@ -1,0 +1,8 @@
+---
+# file: roles/template/tasks/install.yml
+
+- include_tasks: "roles/template/tasks/install-step-1.yml"
+  when: task == "step-1" or task == "all"
+
+- include_tasks: "roles/template/tasks/install-step-2.yml"
+  when: task == "step-2" or task == "all"

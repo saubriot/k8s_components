@@ -1,0 +1,5 @@
+---
+# file: roles/template/tasks/install-1.yml
+
+- debug:
+    msg: "operation={{ operation }} task={{ task }}"

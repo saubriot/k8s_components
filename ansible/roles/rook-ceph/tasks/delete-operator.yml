@@ -1,0 +1,11 @@
+---
+# file: roles/rook-ceph/tasks/delete-operator.yml
+
+- name: delete rook-ceph operator
+  shell: |
+    cd /home/kubeadmin/rook-ceph/cluster/examples/kubernetes/ceph
+    kubectl delete -f operator.yaml
+    kubectl delete -f common.yaml
+  become: true
+  become_user: kubeadmin
+  ignore_errors: yes
