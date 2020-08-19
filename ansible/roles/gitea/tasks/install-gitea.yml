@@ -1,0 +1,223 @@
+---
+# file: roles/gitea/tasks/install-gitea.yml
+
+- name: create file /home/kubeadmin/gitea/gitea-service.yaml
+  copy:
+    content: |
+      ---
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: gitea-http
+        namespace: {{ gitea.namespace }}
+      spec:
+        ports:
+        - name: gitea-http
+          port: 3000
+          targetPort: 3000
+        selector:
+          app: gitea
+        clusterIP: None
+      ---
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: gitea-ssh
+        namespace: {{ gitea.namespace }}
+      spec:
+        ports:
+        - name: gitea-ssh
+          port: 22
+          targetPort: 22
+        selector:
+          app: gitea
+        externalIPs:
+        - {{ gitea.ssh_external_ip }}
+    dest: /home/kubeadmin/gitea/gitea-service.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: kubectl apply -f /home/kubeadmin/gitea/gitea-service.yaml
+  shell: |
+    kubectl apply -f /home/kubeadmin/gitea/gitea-service.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/gitea/gitea-pvc.yaml
+  copy:
+    content: |
+      ---
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: gitea-pv-claim
+        namespace: {{ gitea.namespace }}
+        labels:
+          app: gitea
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 2Gi
+    dest: /home/kubeadmin/gitea/gitea-pvc.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: kubectl apply -f /home/kubeadmin/gitea/gitea-pvc.yaml
+  shell: |
+    kubectl apply -f /home/kubeadmin/gitea/gitea-pvc.yaml
+  become: true
+  become_user: kubeadmin
+
+
+- name: create file /home/kubeadmin/gitea/gitea-deployment.yaml
+  copy:
+    content: |
+      ---
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: gitea
+        namespace: {{ gitea.namespace }}
+        labels:
+          app: gitea
+      spec:
+        selector:
+          matchLabels:
+            app: gitea
+            tier: gitea
+        strategy:
+          type: RollingUpdate
+          rollingUpdate:
+            maxSurge: 1
+            maxUnavailable: 0
+        template:
+          metadata:
+            labels:
+              app: gitea
+              tier: gitea
+          spec:
+            containers:
+            - image: gitea/gitea:latest
+              name: gitea
+              env:
+              - name: APP_NAME
+                value: "{{ gitea.app }}"
+              - name: DOMAIN
+                value: "{{ gitea.domain }}"
+              - name: ROOT_URL
+                value: "{{ gitea.root_url }}"
+              - name: SSH_DOMAIN
+                value: "{{ gitea.ssh_domain }}"
+              - name: USER_UID
+                value: "1000"
+              - name: USER_GID
+                value: "1000"
+              - name: SSH_PORT
+                value: "22"
+              - name: DISABLE_SSH
+                value: "false"
+              - name: HTTP_PORT
+                value: "3000"
+              - name: DB_TYPE
+                value: "postgres"
+              - name: DB_HOST
+                value: "gitea-stolon-proxy:5432"
+              - name: DB_NAME
+                value: "{{ gitea.db.name }}"
+              - name: DB_USER
+                value: "{{ gitea.db.user }}"
+              - name: DB_PASSWD
+                value: "{{ gitea.db.password }}"
+              ports:
+              - containerPort: 3000
+                name: gitea
+              - containerPort: 22
+                name: gitea-ssh
+              volumeMounts:
+              - name: gitea-persistent-storage
+                mountPath: /data
+            volumes:
+            - name: gitea-persistent-storage
+              persistentVolumeClaim:
+                claimName: gitea-pv-claim      
+    dest: /home/kubeadmin/gitea/gitea-deployment.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: kubectl apply -f /home/kubeadmin/gitea/gitea-deployment.yaml
+  shell: |
+    kubectl apply -f /home/kubeadmin/gitea/gitea-deployment.yaml
+  become: true
+  become_user: kubeadmin
+
+
+- name: create file /home/kubeadmin/gitea/gitea-nginx.yaml
+  copy:
+    content: |
+      apiVersion: extensions/v1beta1
+      kind: Ingress
+      metadata:
+        name: gitea-nginx
+        namespace: {{ gitea.namespace }}
+        annotations:
+          kubernetes.io/ingress.class: nginx
+      spec:
+        tls:
+        - secretName: tls-secret
+        rules:
+        - host: {{ gitea.ui.host }}
+          http:
+            paths:
+            - path: /
+              backend:
+                serviceName: gitea-http
+                servicePort: 3000
+    dest: /home/kubeadmin/gitea/gitea-nginx.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: apply ui nginx ingress
+  shell: kubectl apply -f /home/kubeadmin/gitea/gitea-nginx.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: Wait for stolon pods become ready
+  shell: kubectl wait --namespace={{ gitea.namespace }} --for=condition=Ready pods --selector=app=stolon --timeout=600s
+  register: stolon_pods_ready
+  become: true
+  become_user: kubeadmin
+
+#- debug: var=stolon_pods_ready.stdout_lines
+
+- name: Wait for psql connection
+  shell: kubectl exec -it -n gitea gitea-stolon-keeper-0  -- psql "postgresql://postgres:psspss@gitea-stolon-proxy" -c "" && echo $?
+  register: result
+#  until: result.stdout.find("0") != -1
+  until: result.stdout == "0"
+  retries: 5
+  delay: 10
+  become: true
+  become_user: kubeadmin
+
+#- debug: var=result.stdout
+
+- name: create database {{ gitea.db.name }}
+  shell: kubectl exec -it -n gitea gitea-stolon-keeper-0  -- psql "postgresql://postgres:psspss@gitea-stolon-proxy" -c "create database {{ gitea.db.name }};"
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: create user {{ gitea.db.user }}
+  shell: kubectl exec -it -n gitea gitea-stolon-keeper-0  -- psql "postgresql://postgres:psspss@gitea-stolon-proxy" -c "create user {{ gitea.db.user }} password '{{ gitea.db.password }}';"
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: grant user {{ gitea.db.user }} database {{ gitea.db.name }}
+  shell: kubectl exec -it -n gitea gitea-stolon-keeper-0  -- psql "postgresql://postgres:psspss@gitea-stolon-proxy" -c "grant all privileges on database {{ gitea.db.name }} to {{ gitea.db.user }};"
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+

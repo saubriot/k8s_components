@@ -1,0 +1,12 @@
+---
+# file: roles/gitea/tasks/delete-cfssl.yml
+
+- name: rm files /home/kubeadmin/cfssl/gitea*
+  file:
+    path: /home/kubeadmin/cfssl/{{ item }}
+    state: absent
+  loop:
+    - gitea-csr.json  
+    - gitea-key.pem  
+    - gitea.csr  
+    - gitea.pem

@@ -1,0 +1,11 @@
+---
+# file: roles/gitea/tasks/delete-stolon.yml
+
+- name: helm uninstall stolon
+  shell: |
+    helm uninstall --namespace {{ gitea.namespace }} {{ gitea.stolon.release }}
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+

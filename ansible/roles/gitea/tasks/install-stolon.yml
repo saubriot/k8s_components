@@ -1,0 +1,35 @@
+---
+# file: roles/gitea/tasks/install-stolon.yml
+
+- name: mkdir folder /home/kubeadmin/gitea/stolon
+  file:
+    path: /home/kubeadmin/gitea/stolon
+    state: directory
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/gitea/stolon/config.yaml
+  copy:
+    content: |
+      superuserUsername: {{ gitea.stolon.superuserUsername }}
+      superuserPassword: {{ gitea.stolon.superuserPassword }}
+      replicationPassword: {{ gitea.stolon.replicationPassword }}
+  
+      persistence:
+        size: {{ gitea.stolon.persistence.size }}
+      keeper:
+        replicaCount: {{ gitea.stolon.keeper.replicaCount }}
+      proxy:
+        replicaCount: {{ gitea.stolon.proxy.replicaCount }}
+      
+    dest: /home/kubeadmin/gitea/stolon/config.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: helm install stolon
+  shell: |
+    helm repo add stable https://kubernetes-charts.storage.googleapis.com
+    helm install --namespace {{ gitea.namespace }} {{ gitea.stolon.release }} stable/stolon --values /home/kubeadmin/gitea/stolon/config.yaml
+  become: true
+  become_user: kubeadmin
+

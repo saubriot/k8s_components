@@ -1,0 +1,11 @@
+---
+# file: roles/gitea/tasks/install-repo.yml
+
+- name: mkdir folder /home/kubeadmin/gitea
+  file:
+    path: /home/kubeadmin/gitea
+    state: directory
+  become: true
+  become_user: kubeadmin
+
+

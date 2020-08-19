@@ -1,0 +1,9 @@
+---
+# file: roles/gitea/tasks/install-namespace.yml
+
+- name: install gitea namespace "{{ gitea.namespace }}"
+  shell: |
+    kubectl create namespace {{ gitea.namespace }}
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true

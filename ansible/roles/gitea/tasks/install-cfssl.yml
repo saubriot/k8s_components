@@ -1,0 +1,40 @@
+---
+# file: roles/gitea/tasks/install-cfssl.yml
+
+- name: create file /home/kubeadmin/cfssl/gitea-csr.json
+  copy:
+    content: |
+      {
+          "CN": "{{ gitea.ui.csr_CN }}",
+          "hosts": [
+              "{{ gitea.ui.host }}"
+          ],
+          "key": {
+              "algo": "rsa",
+              "size": 2048
+          },
+          "names": [
+              {
+                  "C": "{{ gitea.ca.csr_C }}",
+                  "L": "{{ gitea.ca.csr_L }}",
+                  "ST": "{{ gitea.ca.csr_ST }}"
+              }
+          ]
+      }
+    dest: /home/kubeadmin/cfssl/gitea-csr.json
+  become: true
+  become_user: kubeadmin
+
+- name: cfssl gencert
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=web-servers gitea-csr.json | cfssljson -bare gitea
+  become: true
+  become_user: kubeadmin
+
+- name: create secret tls-secret
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    kubectl create secret tls tls-secret --key ./gitea-key.pem --cert gitea.pem -n {{ gitea.namespace }}
+  become: true
+  become_user: kubeadmin

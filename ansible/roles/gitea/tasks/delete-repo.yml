@@ -1,0 +1,7 @@
+---
+# file: roles/gitea/tasks/delete-repo.yml
+
+- name: rm folder /home/kubeadmin/gitea
+  file:
+    path: /home/kubeadmin/gitea
+    state: absent
