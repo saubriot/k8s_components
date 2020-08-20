@@ -17,7 +17,7 @@ ok: [paris.europe]
 ...
 
 PLAY RECAP **************************************************************************************
-paris.europe               : ok=34   changed=22    unreachable=0    failed=0   
+paris.europe               : ok=22   changed=12    unreachable=0    failed=0   
 
 ```
 ## 2. Access Harbor : login
