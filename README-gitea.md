@@ -31,9 +31,17 @@ Note : The certificate is a self certificate generated usng cfssl.
 
 ![Gitea installation](images/gitea-installation.png)
 
+- Click [Install Gitea]
+
 ![Gitea signin](images/gitea-signin.png)
 
+- Click [Need an account? Register now.]
+
 ![Gitea register](images/gitea-register.png)
+
+- Click [Register account]
+
+![Gitea dashboard](images/gitea-dashboard.png)
 
 ![Gitea new repository](images/gitea-new-repository.png)
 
