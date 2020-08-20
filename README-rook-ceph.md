@@ -57,11 +57,11 @@ You can follow the installation progress using either kubectl or kubernetes dash
 
 - Follow the installation using the dashboard :
 
-![Dashboard Kubernetes Rook-ceph follow ](https://github.com/saubriot/k8s_components/blob/master/images/dashboard-kubernetes-follow-rook-ceph-installation.png)
+![Dashboard Kubernetes Rook-ceph follow ](images/dashboard-kubernetes-follow-rook-ceph-installation.png)
 
 - After approx. 10 minutes it's done :
 
-![Dashboard Kubernetes Rook-ceph finished ](https://github.com/saubriot/k8s_components/blob/master/images/dashboard-kubernetes-follow-rook-ceph-installation-done.png)
+![Dashboard Kubernetes Rook-ceph finished ](images/dashboard-kubernetes-follow-rook-ceph-installation-done.png)
 
 ## 3. Verify rook-ceph installation
 Connect the master node, log in as kubeadmin and execute kubectl command to check installtion.
@@ -171,13 +171,13 @@ Note : The certificate is a self certificate generated usng cfssl.
 - Click on [Advanced...] 
 - Click on [Accept the Risk and Continue]
 
-![Dashboard Login Page](https://github.com/saubriot/k8s_components/blob/master/images/dashboard-rook-ceph-login-page.png)
+![Dashboard Login Page](images/dashboard-rook-ceph-login-page.png)
 
 - Login as admin
 - Password : **rLck1UeXPI** (copy your password)
 - Click [Login]
 
-![Dashboard Welcome Page](https://github.com/saubriot/k8s_components/blob/master/images/dashboard-rook-ceph-overview.png)
+![Dashboard Welcome Page](images/dashboard-rook-ceph-overview.png)
 
 > You can now view your Ceph dashboards 
 
