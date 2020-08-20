@@ -33,7 +33,7 @@ The ansible directory structure has been defined as followed :
 Requires a Kubernetes cluster up and running.
 See https://github.com/saubriot/k8s_ansible for vagrant demo environment.
 
-## 3. Components
+# 3. Components
 ## 3.1. Default monitoring : prometheus
 
 [See installation guide](README-prometheus.md)
