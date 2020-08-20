@@ -53,15 +53,17 @@ Note : The certificate is a self certificate generated usng cfssl.
 
 ![Gitea new repository](images/gitea-new-repository.png)
 
-- ssh command :
+- Click on [ssh] to view the ssh uri : git@gitea.k8s.europe:johndoe/demo.git
 
 ![Gitea repository ssh](images/gitea-repository-ssh.png)
 
-- https command :
+- Click on [https] to view the https uri : https://gitea.k8s.europe/johndoe/demo.git
+
+> In our case we are using self signed certificates. You need to add "git config --global **http.sslVerify false**" command
 
 ![Gitea repository https](images/gitea-repository-https.png)
 
-## 3. Using --extra-vars to customize installation
+## 5. Using --extra-vars to customize installation
 The playbook accepts 2 extra vars :
 - operation : could be either "install" or "delete"
 - task : could be either "all" or the task to execute :
