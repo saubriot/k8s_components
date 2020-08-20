@@ -33,9 +33,11 @@ Note : The certificate is a self certificate generated usng cfssl.
 
 - Click [Install Gitea]
 
-## 3. Access Gitea : register new admin account
+
 
 ![Gitea signin](images/gitea-signin.png)
+
+## 3. Access Gitea : register new admin account
 
 - Click [Need an account? Register now.]
 
