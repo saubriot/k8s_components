@@ -34,10 +34,10 @@ Requires a Kubernetes cluster up and running.
 See https://github.com/saubriot/k8s_ansible for vagrant demo environment.
 
 ## 3. Components
-### 3.1. Default monitoring for Kubernetes : prometheus
+## 3.1. Default monitoring : prometheus
 
-See installation guide : [Default monitoring for Kubernetes : prometheus](README-prometheus.md)
+See installation guide : (README-prometheus.md)
 
-## 3.2. Distributed storage and default storage class for Kubernetes : rook-ceph
+## 3.2. Distributed storage and default storage class : rook-ceph
 
-See installation guide : [Distributed storage and default storage class for Kubernetes : rook-ceph](README-rook-ceph.md)
+See installation guide : (README-rook-ceph.md)
