@@ -17,10 +17,10 @@ ok: [paris.europe]
 ...
 
 PLAY RECAP **************************************************************************************
-paris.europe               : ok=13   changed=7    unreachable=0    failed=0   
+paris.europe               : ok=34   changed=22    unreachable=0    failed=0   
 
 ```
-## 2. Access Gitea dashboard : login
+## 2. Access Gitea dashboard : installation
 
 Open your browser (Firefox in our case) at https://gitea.k8s.europe 
 
@@ -29,6 +29,17 @@ Note : The certificate is a self certificate generated usng cfssl.
 - Click on [Advanced...] 
 - Click on [Accept the Risk and Continue]
 
+![Gitea installation](images/gitea-installation.png)
+
+![Gitea signin](images/gitea-signin.png)
+
+![Gitea register](images/gitea-register.png)
+
+![Gitea new repository](images/gitea-new-repository.png)
+
+![Gitea repository ssh](images/gitea-repository-ssh.png)
+
+![Gitea repository https](images/gitea-repository-https.png)
 
 ## 3. Using --extra-vars to customize installation
 The playbook accepts 2 extra vars :
