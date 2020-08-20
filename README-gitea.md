@@ -63,7 +63,29 @@ Note : The certificate is a self certificate generated usng cfssl.
 
 ![Gitea repository https](images/gitea-repository-https.png)
 
-## 5. Using --extra-vars to customize installation
+## 5. Create your local repository
+On your local machine, create a local repository /tmp/demo, add a content README.md and push to gitea repo gitea.k8s.europe/johndoe/demo.git :
+```
+mkdir -p /tmp/demo
+cd /tmp/demo
+touch README.md
+git init
+git add README.md
+git commit -m "first commit"
+git remote add origin https://gitea.k8s.europe/johndoe/demo.git
+git config --global http.sslVerify false
+git push -u origin master
+Username for 'https://gitea.k8s.europe': johndoe
+Password for 'https://johndoe@gitea.k8s.europe': 
+```
+
+- Click on your **[ demo ]** repository to view the changes :
+
+![Gitea repository demo commit](images/gitea-repo-demo-commit.png)
+
+> File README.md has been pushed
+
+## 6. Using --extra-vars to customize installation
 The playbook accepts 2 extra vars :
 - operation : could be either "install" or "delete"
 - task : could be either "all" or the task to execute :
@@ -93,7 +115,7 @@ Delete installation :
 ```
 ansible-playbook -i inventories/demo gitea.yml --extra-vars="operation=delete task=all" -u vagrant
 ```
-## 6. Gitea settings
+## 7. Gitea settings
 Installation settings are configured in **inventories/demo/group_vars/roles/gitea.yml** file :
 
 ```
