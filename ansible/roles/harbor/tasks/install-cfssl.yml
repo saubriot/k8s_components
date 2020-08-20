@@ -1,0 +1,78 @@
+---
+# file: roles/harbor/tasks/install-cfssl.yml
+
+- name: create file /home/kubeadmin/cfssl/harbor-csr.json
+  copy:
+    content: |
+      {
+          "CN": "{{ harbor.ui.csr_CN }}",
+          "hosts": [
+              "{{ harbor.ui.host }}"
+          ],
+          "key": {
+              "algo": "rsa",
+              "size": 2048
+          },
+          "names": [
+              {
+                  "C": "{{ harbor.ca.csr_C }}",
+                  "L": "{{ harbor.ca.csr_L }}",
+                  "ST": "{{ harbor.ca.csr_ST }}"
+              }
+          ]
+      }
+    dest: /home/kubeadmin/cfssl/harbor-csr.json
+  become: true
+  become_user: kubeadmin
+
+- name: cfssl gencert
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=web-servers harbor-csr.json | cfssljson -bare harbor
+  become: true
+  become_user: kubeadmin
+
+- name: create secret tls-secret
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    kubectl create secret tls tls-secret --key ./harbor-key.pem --cert harbor.pem -n {{ harbor.namespace }}
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/cfssl/harbor-notary-csr.json
+  copy:
+    content: |
+      {
+          "CN": "{{ harbor.notary.csr_CN }}",
+          "hosts": [
+              "{{ harbor.notary.host }}"
+          ],
+          "key": {
+              "algo": "rsa",
+              "size": 2048
+          },
+          "names": [
+              {
+                  "C": "{{ harbor.ca.csr_C }}",
+                  "L": "{{ harbor.ca.csr_L }}",
+                  "ST": "{{ harbor.ca.csr_ST }}"
+              }
+          ]
+      }
+    dest: /home/kubeadmin/cfssl/harbor-notary-csr.json
+  become: true
+  become_user: kubeadmin
+
+- name: cfssl gencert
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=web-servers harbor-notary-csr.json | cfssljson -bare harbor-notary
+  become: true
+  become_user: kubeadmin
+
+- name: create secret tls-secret-notary
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    kubectl create secret tls tls-secret-notary --key ./harbor-notary-key.pem --cert harbor-notary.pem -n {{ harbor.namespace }}
+  become: true
+  become_user: kubeadmin

@@ -1,0 +1,17 @@
+---
+# file: roles/harbor/tasks/delete-pvc.yml
+
+- name: delete  Persistent Volume Claims
+  shell: |
+    kubectl delete pvc {{ item }} -n {{ harbor.namespace }}
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+  loop:
+    - data-harbor-repo-harbor-redis-0
+    - data-harbor-repo-harbor-trivy-0
+    - database-data-harbor-repo-harbor-database-0
+    - harbor-repo-harbor-chartmuseum
+    - harbor-repo-harbor-jobservice
+    - harbor-repo-harbor-registry  
+

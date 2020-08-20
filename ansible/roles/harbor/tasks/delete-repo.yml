@@ -1,0 +1,7 @@
+---
+# file: roles/harbor/tasks/delete-repo.yml
+
+- name: rm folder /home/kubeadmin/harbor
+  file:
+    path: /home/kubeadmin/harbor
+    state: absent

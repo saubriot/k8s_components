@@ -1,0 +1,17 @@
+---
+# file: roles/harbor/tasks/install.yml
+
+- include_tasks: "roles/harbor/tasks/install-helm.yml"
+  when: task == "helm" or task == "all"
+
+- include_tasks: "roles/harbor/tasks/install-repo.yml"
+  when: task == "repo" or task == "all"
+
+- include_tasks: "roles/harbor/tasks/install-namespace.yml"
+  when: task == "namespace" or task == "all"
+
+- include_tasks: "roles/harbor/tasks/install-cfssl.yml"
+  when: task == "cfssl" or task == "all"
+
+- include_tasks: "roles/harbor/tasks/install-harbor.yml"
+  when: task == "harbor" or task == "all"

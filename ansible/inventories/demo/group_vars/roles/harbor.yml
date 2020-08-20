@@ -1,0 +1,28 @@
+
+# harbor configuration
+
+harbor:
+  namespace: harbor
+  release: harbor-repo
+  admin:
+    password: password
+  persistence:
+    enable: true
+    size:
+      registry: 1Gi # dafault is 5Gi
+      chartmuseum: 1Gi # default is 5Gi
+      jobservice: 200Mi # default is 1Gi
+      database: 200Mi # default is 1Gi
+      redis: 200Mi # default is 1Gi
+      trivy: 1Gi # dafault is 5Gi
+
+  ca:
+    csr_C: EU
+    csr_L: paris
+    csr_ST: france
+  ui:
+    csr_CN: harbor.k8s.europe
+    host: harbor.k8s.europe
+  notary:
+    csr_CN: notary.k8s.europe
+    host: notary.k8s.europe

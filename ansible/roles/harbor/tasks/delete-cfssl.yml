@@ -1,0 +1,30 @@
+---
+# file: roles/harbor/tasks/delete-cfssl.yml
+
+- name: rm files /home/kubeadmin/cfssl/harbor*
+  file:
+    path: /home/kubeadmin/cfssl/{{ item }}
+    state: absent
+  loop:
+    - harbor-csr.json  
+    - harbor-key.pem  
+    - harbor.csr  
+    - harbor.pem
+    - harbor-notary-csr.json  
+    - harbor-notary-key.pem  
+    - harbor.notary-csr  
+    - harbor.notary-pem
+
+- name: delete secret tls-secret
+  shell: |
+    kubectl delete secret tls-secret -n {{ harbor.namespace }}
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: delete secret tls-secret-notary
+  shell: |
+    kubectl delete secret tls-secret-notary -n {{ harbor.namespace }}
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true

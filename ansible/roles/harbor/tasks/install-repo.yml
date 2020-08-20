@@ -1,0 +1,17 @@
+---
+# file: roles/harbor/tasks/install-repo.yml
+
+- name: mkdir folder /home/kubeadmin/harbor
+  file:
+    path: /home/kubeadmin/harbor
+    state: directory
+  become: true
+  become_user: kubeadmin
+
+- name: helm repo add harbor https://helm.goharbor.io
+  shell: |
+    helm repo add harbor https://helm.goharbor.io
+    helm repo update
+  become: true
+  become_user: kubeadmin
+
