@@ -46,7 +46,7 @@ See https://github.com/saubriot/k8s_ansible for vagrant demo environment.
 
 [See installation guide](README-rook-ceph.md)
 
-## 3.3. A community managed lighweight code hosting : gitea
+## 3.3. A community managed lightweight code hosting : gitea
 
 [See installation guide](README-gitea.md)
 
