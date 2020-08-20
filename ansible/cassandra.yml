@@ -1,8 +1,0 @@
----
-# file: cassandra.yml
-- hosts: kubeadmin
-  become: true
-  roles:
-    - cassandra
-  vars_files:
-    - "{{ inventory_dir }}/group_vars/roles/cassandra.yml"  
