@@ -14,6 +14,8 @@ The ansible directory structure has been defined as followed :
   - prometheus.yml : install prometheus
   - rook-ceph.yml : install rook-ceph distributed storage
   - rook-ceph-nodes.yml : prepare nodes for rook-ceph installation : create mount points on each node
+  - gitea.yml : install gitea code hosting
+  - harbor.yml : install harbor repository
   - template.yml : templating script for new component
   - **inventories** : contains information about the environments to deploy
     - **demo** : demo environment
