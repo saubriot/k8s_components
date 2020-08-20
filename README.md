@@ -11,6 +11,7 @@ We will install :
 Install useful components :
 - CI/CD tools
 - Data components
+- ...
 
 # 3. How it works and prerequisites
 ## 3.1 How it works : short explanation 
