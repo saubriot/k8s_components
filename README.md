@@ -23,7 +23,7 @@ The ansible directory structure has been defined as followed :
         - prometheus : settings for prometheus
         - rook-ceph : settings for rook-ceph        
         - rook-ceph-nodes : settings for rook-ceph-nodes
-        - gitea : settings for gitea "Git with a cup of tea" : a community managed lightweight code hosting solution written in Go
+        - gitea : settings for Gitea : a community managed lightweight code hosting solution written in Go
         - harbor : settings for harbor        
   - **roles**
     - **prometheus** : rprometheus installation tasks to execute
