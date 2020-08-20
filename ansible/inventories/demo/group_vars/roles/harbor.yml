@@ -9,7 +9,7 @@ harbor:
   persistence:
     enable: true
     size:
-      registry: 1Gi # dafault is 5Gi
+      registry: 1Gi # default is 5Gi
       chartmuseum: 1Gi # default is 5Gi
       jobservice: 200Mi # default is 1Gi
       database: 200Mi # default is 1Gi
