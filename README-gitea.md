@@ -162,14 +162,25 @@ Move to your local repository and pull :
 ```
 cd /tmp/demo
 git pull
-more README.me
+more README.md
 ```
 ```
 # Hello World
 ```
 
+## 7. Create a OAuth2 authorization for Drone
 
-## 7. Using --extra-vars to customize installation
+- Application name : **Drone**
+- Redirect URI : **https://drone.k8s.europe/login**
+- Click on **[ Create Application ]**
+
+![Gitea create OAuth2 authorization for Drone](images/gitea-create-oauth2-drone.png)
+
+> We will use later (Drone installation) : ClientID and Secret values
+
+![Gitea OAuth2 authorization for Drone created](images/gitea-oauth2-drone-created.png)
+
+## 8. Using --extra-vars to customize installation
 The playbook accepts 2 extra vars :
 - operation : could be either "install" or "delete"
 - task : could be either "all" or the task to execute :
@@ -199,7 +210,7 @@ Delete installation :
 ```
 ansible-playbook -i inventories/demo gitea.yml --extra-vars="operation=delete task=all" -u vagrant
 ```
-## 8. Gitea settings
+## 9. Gitea settings
 Installation settings are configured in **inventories/demo/group_vars/roles/gitea.yml** file :
 
 ```
