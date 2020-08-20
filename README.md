@@ -7,8 +7,14 @@ We will install :
 - a **default monitoring** tool for Kubernetes : **prometheus** + grafana
 - a **default storage class** for Kubernetes using a **rook-ceph** cluster for distributed storage
 
-# 2. How it works and prerequisites
-## 2.1 How it works : short explanation 
+# 2. Second objective
+Install useful components :
+- CI/CD tools
+- Data components
+- ...
+
+# 3. How it works and prerequisites
+## 3.1 How it works : short explanation 
 The ansible directory structure has been defined as followed :
 - **ansible** : contains the main playbooks, the environments to deploy (under inventories) and the roles and tasks to execute (under roles) 
   - prometheus.yml : install prometheus
@@ -35,23 +41,25 @@ The ansible directory structure has been defined as followed :
     - **harbor** : harbor installation tasks to execute 
     - **template** : templating for new component role
 
-## 2.2. Prerequisites 
+## 3.2. Prerequisites 
 Requires a Kubernetes cluster up and running.
 See https://github.com/saubriot/k8s_ansible for vagrant demo environment.
 
-# 3. Components
-## 3.1. Default monitoring : prometheus
+# 4. Components
+## 4.1. Default monitoring : prometheus
 
 [See installation guide](README-prometheus.md)
 
-## 3.2. Distributed storage and default storage class : rook-ceph
+## 4.2. Distributed storage and default storage class : rook-ceph
 
 [See installation guide](README-rook-ceph.md)
 
-## 3.3. A community managed lightweight code hosting : gitea
+## 4.3. CI/CD components
+### 4.3.a. A community managed lightweight code hosting : gitea
 
 [See installation guide](README-gitea.md)
 
-## 3.4. A trusted cloud native repository for Kubernetes : harbor
+### 4.3.b. A trusted cloud native repository for Kubernetes : harbor
 
 [See installation guide](README-harbor.md)
+
