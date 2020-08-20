@@ -1,6 +1,6 @@
 # A community managed lighweight code hosting
 ## 1. Gitea installation
-Move to ansible directory (assuming git repo is installed in ~/k8s_components) and run the playbook prometheus.yml.
+Move to ansible directory (assuming git repo is installed in ~/k8s_components) and run the playbook gitea.yml.
 ```
 cd ~/k8s_components/ansible
 export ANSIBLE_CONFIG=~/.ansible/ansible.cfg
@@ -26,12 +26,12 @@ Open your browser (Firefox in our case) at https://gitea.k8s.europe
 
 Note : The certificate is a self certificate generated usng cfssl. 
 
-- Click on [Advanced...] 
-- Click on [Accept the Risk and Continue]
+- Click on **[ Advanced... ]** 
+- Click on **[ Accept the Risk and Continue ]**
 
 ![Gitea installation](images/gitea-installation.png)
 
-- Click [Install Gitea]
+- Click **[ Install Gitea ]**
 
 > When installation is complete, you are redirect to the signin page.
 
@@ -39,25 +39,25 @@ Note : The certificate is a self certificate generated usng cfssl.
 
 ## 3. Register new - admin - account
 
-- Click [Need an account? Register now.]
+- Click **[ Need an account? Register now. ]**
 
 ![Gitea register](images/gitea-register.png)
 
-- Click [Register account]
+- Click **[ Register account ]**
 
 ## 4. Add a new repository
 
 ![Gitea dashboard](images/gitea-dashboard.png)
 
-- On the right **Repositories** frame, Click [+]
+- On the right **Repositories** frame, Click **[ + ]**
 
 ![Gitea new repository](images/gitea-new-repository.png)
 
-- Click on [ssh] to view the ssh uri : git@gitea.k8s.europe:johndoe/demo.git
+- Click on **[ SSH ]** to view the ssh uri : git@gitea.k8s.europe:johndoe/demo.git
 
 ![Gitea repository ssh](images/gitea-repository-ssh.png)
 
-- Click on [https] to view the https uri : https://gitea.k8s.europe/johndoe/demo.git
+- Click on **[ HTTPS ]** to view the https uri : https://gitea.k8s.europe/johndoe/demo.git
 
 > In our case we are using self signed certificates. You need to add "git config --global **http.sslVerify false**" command
 

@@ -168,14 +168,14 @@ Open your browser (Firefox in our case) at https://rook-ceph.k8s.europe
 
 Note : The certificate is a self certificate generated usng cfssl. 
 
-- Click on [Advanced...] 
-- Click on [Accept the Risk and Continue]
+- Click on **[ Advanced... ]** 
+- Click on **[ Accept the Risk and Continue ]**
 
 ![Dashboard Login Page](images/dashboard-rook-ceph-login-page.png)
 
 - Login as admin
 - Password : **rLck1UeXPI** (copy your password)
-- Click [Login]
+- Click **[ Login ]**
 
 ![Dashboard Welcome Page](images/dashboard-rook-ceph-overview.png)
 
