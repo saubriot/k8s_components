@@ -33,9 +33,9 @@ Note : The certificate is a self certificate generated usng cfssl.
 
 - Click on **[ LOG IN ]** 
 
-> Now you are ready to use Harbor
-
 ![Harbor homepage](images/harbor-homepage.png)
+
+> Now you are ready to use Harbor
 
 ## 3. Using --extra-vars to customize installation
 The playbook accepts 2 extra vars :
