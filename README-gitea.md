@@ -111,13 +111,13 @@ gitea:
   db:
     name: gitea
     user: gitea
-    password: psspss
+    password: password
 
   stolon:
     release: gitea-stolon
     superuserUsername: postgres
-    superuserPassword: psspss
-    replicationPassword: psspss
+    superuserPassword: password
+    replicationPassword: password
 
     persistence:
       size: 2Gi
