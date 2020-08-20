@@ -93,3 +93,44 @@ Delete installation :
 ```
 ansible-playbook -i inventories/demo gitea.yml --extra-vars="operation=delete task=all" -u vagrant
 ```
+## 6. Gitea settings
+Installation settings are configured in **inventories/demo/group_vars/roles/gitea.yml** file :
+
+```
+# gitea configuration
+
+gitea:
+  namespace: gitea
+
+  app: Gitea
+  domain: gitea.k8s.europe
+  root_url: https://gitea.k8s.europe
+  ssh_domain: gitea.k8s.europe
+  ssh_external_ip: 192.168.10.190
+
+  db:
+    name: gitea
+    user: gitea
+    password: psspss
+
+  stolon:
+    release: gitea-stolon
+    superuserUsername: postgres
+    superuserPassword: psspss
+    replicationPassword: psspss
+
+    persistence:
+      size: 2Gi
+    keeper:
+      replicaCount: 2
+    proxy:
+      replicaCount: 2
+
+  ca:
+    csr_C: EU
+    csr_L: paris
+    csr_ST: france
+  ui:
+    csr_CN: gitea.k8s.europe
+    host: gitea.k8s.europe
+```
