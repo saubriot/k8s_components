@@ -29,23 +29,23 @@ Note : The certificate is a self certificate generated usng cfssl.
 - Click on [Advanced...] 
 - Click on [Accept the Risk and Continue]
 
-![Dashboard Login Page](https://github.com/saubriot/k8s_components/blob/master/images/dashboard-grafana-login-page.png)
+![Dashboard Login Page](images/dashboard-grafana-login-page.png)
 
 - Login as admin/admin
 - Click [Log in]
 
-![Dashboard Change Password Page](https://github.com/saubriot/k8s_components/blob/master/images/dashboard-grafana-change-password.png)
+![Dashboard Change Password Page](images/dashboard-grafana-change-password.png)
 
 - Change your password
 - Click [Submit]
 
-![Dashboard Welcome Page](https://github.com/saubriot/k8s_components/blob/master/images/dashboard-grafana-welcome-page.png)
+![Dashboard Welcome Page](images/dashboard-grafana-welcome-page.png)
 
 > You can now manage your Grafana dashboards 
 
 If you log in to Kubernetes dashboard at https://kubernetes.k8s.europe and choose "monitoring" as namespace. You will see on top of the page new metrics "CPU Usage" and "Memory Usage" :
 
-![Dashboard Kubernetes with Metrics](https://github.com/saubriot/k8s_components/blob/master/images/dashboard-kubernetes-with-metrics.png)
+![Dashboard Kubernetes with Metrics](images/dashboard-kubernetes-with-metrics.png)
 
 ## 3. Using --extra-vars to customize installation
 The playbook accepts 2 extra vars :
