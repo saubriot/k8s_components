@@ -20,7 +20,7 @@ PLAY RECAP *********************************************************************
 paris.europe               : ok=34   changed=22    unreachable=0    failed=0   
 
 ```
-## 2. Access Gitea dashboard : installation
+## 2. Access Gitea : installation
 
 Open your browser (Firefox in our case) at https://gitea.k8s.europe 
 
@@ -33,6 +33,8 @@ Note : The certificate is a self certificate generated usng cfssl.
 
 - Click [Install Gitea]
 
+## 3. Access Gitea : register new admin account
+
 ![Gitea signin](images/gitea-signin.png)
 
 - Click [Need an account? Register now.]
@@ -41,11 +43,19 @@ Note : The certificate is a self certificate generated usng cfssl.
 
 - Click [Register account]
 
+## 4. Access Gitea : add a new repository
+
 ![Gitea dashboard](images/gitea-dashboard.png)
+
+- On Repositories tab, Click [+]
 
 ![Gitea new repository](images/gitea-new-repository.png)
 
+- ssh command :
+
 ![Gitea repository ssh](images/gitea-repository-ssh.png)
+
+- https command :
 
 ![Gitea repository https](images/gitea-repository-https.png)
 
