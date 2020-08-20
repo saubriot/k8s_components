@@ -1,6 +1,6 @@
 ---
 
-# rook-ceph configuration
+# rook-ceph-nodes configuration
 
 rook_ceph:
   dataDirHostPath: /var/lib/rook

@@ -71,3 +71,19 @@ Delete installation :
 ```
 ansible-playbook -i inventories/demo prometheus.yml --extra-vars="operation=delete task=all" -u vagrant
 ```
+
+## 4. Prometheus settings
+Installation settings are configured in **inventories/demo/group_vars/roles/prometheus.yml** file :
+
+```
+# grafana configuration
+
+grafana:
+  ca:
+    csr_C: EU
+    csr_L: paris
+    csr_ST: france
+  ui:
+    csr_CN: grafana.k8s.europe
+    host: grafana.k8s.europe
+```

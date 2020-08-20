@@ -209,4 +209,45 @@ ansible-playbook -i inventories/demo rook-ceph.yml --extra-vars="operation=check
 
 ```
 
+## 7. Rook-ceph settings
+Installation settings are configured in **inventories/demo/group_vars/roles/rook-ceph-nodes.yml** and **inventories/demo/group_vars/roles/rook-ceph.yml** files :
+
+rook-ceph-nodes file :
+
+```
+# rook-ceph-nodes configuration
+
+rook_ceph:
+  dataDirHostPath: /var/lib/rook
+  storagePath: /data/rook
+
+```
+
+rook-ceph file :
+
+```
+# rook-ceph configuration
+
+rook_ceph:
+  dataDirHostPath: /var/lib/rook
+  storagePath: /data/rook
+  count:
+    mon: 3
+    osd: 3
+    replica: 2
+  nodes: 
+    - roma.europe
+    - madrid.europe
+    - lisboa.europe
+  label:
+    nodes_key: role
+    nodes_value: storage-node
+  ui:
+    csr_CN: rook-ceph.k8s.europe
+    host: rook-ceph.k8s.europe
+    ca:
+      csr_C: EU
+      csr_L: paris
+      csr_ST: france
+```
 
