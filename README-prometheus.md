@@ -26,18 +26,18 @@ Open your browser (Firefox in our case) at https://grafana.k8s.europe
 
 Note : The certificate is a self certificate generated usng cfssl. 
 
-- Click on [Advanced...] 
-- Click on [Accept the Risk and Continue]
+- Click on **[ Advanced... ]** 
+- Click on **[ Accept the Risk and Continue ]**
 
 ![Dashboard Login Page](images/dashboard-grafana-login-page.png)
 
 - Login as admin/admin
-- Click [Log in]
+- Click **[ Log in ]**
 
 ![Dashboard Change Password Page](images/dashboard-grafana-change-password.png)
 
 - Change your password
-- Click [Submit]
+- Click **[ Submit ]**
 
 ![Dashboard Welcome Page](images/dashboard-grafana-welcome-page.png)
 
