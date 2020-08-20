@@ -45,3 +45,11 @@ See https://github.com/saubriot/k8s_ansible for vagrant demo environment.
 ## 3.2. Distributed storage and default storage class : rook-ceph
 
 [See installation guide](README-rook-ceph.md)
+
+## 3.3. A community managed lighweight code hosting : gitea
+
+[See installation guide](README-gitea.md)
+
+## 3.4. A trusted cloud native repository for Kubernetes : harbor
+
+[See installation guide](README-harbor.md)
