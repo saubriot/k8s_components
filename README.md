@@ -8,7 +8,9 @@ We will install :
 - a **default storage class** for Kubernetes using a **rook-ceph** cluster for distributed storage
 
 # 2. Second objective
-Install useful components such as CI/CD and Data components.
+Install useful components :
+- CI/CD tools
+- Data components
 
 # 3. How it works and prerequisites
 ## 3.1 How it works : short explanation 
