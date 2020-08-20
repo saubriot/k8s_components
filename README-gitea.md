@@ -85,7 +85,37 @@ Password for 'https://johndoe@gitea.k8s.europe':
 
 > File README.md has been pushed
 
-## 6. Using --extra-vars to customize installation
+## 6. Use ssh to pull & push repo
+### 6.1 Create your own key **id_rsa_gitea**
+
+Generate the key :
+```
+ssh-keygen -t rsa -f ~/.ssh/id_rsa_gitea  -q -N "" -C "johndoe@noname.com"
+```
+
+Copy the content of the key :
+```
+cat ~/.ssh/id_rsa_gitea.pub
+```
+```
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDHir+pNql15kGTLSR4Bd/a7UNI+d1p3I9gAwyrQv05jbGOiybip3jiUrNyGWkF18Vr8udX3VeBaqq4Zx3Ll4KKc6sPU38nS9jnLgyLow/xht22Bu0cEEyFB6Ki/jcUX5XhvdGbSZBxDwDYve+Fs7HCkfZunfiaYGXDlzVw5ZwtHSDEFPwkKoNZ7ULeko/8Frh8eHq4vKJ9Xy1kOpFDqWOgJPUN1nkuGD5VF2GcTM+OEqO2k2nPfpOX6tOs6aTh9BuqT4F+7YK3XzQW+MKpGSTTecfTpuQIZPMxGbCqEkeDlsD/766Jvmb6KZ4YZztQWzp1XmN0dJloonIYyrH1ieIJ johndoe@noname.com
+```
+
+On **demo** repository :
+- Click on **[ Settings ]**
+- Click on **[ Deploy Keys ]**
+- Click on **[ Add Deploy Key ]**
+
+![Gitea add deploy key](images/gitea-add-deploy-key.png)
+
+- Validate **Enable Write Access**
+- Click on **[ Add Deploy Key ]**
+
+![Gitea deploy key added](images/gitea-deploy-key-added.png)
+
+> The deploy key is added to the demo repository
+
+## 7. Using --extra-vars to customize installation
 The playbook accepts 2 extra vars :
 - operation : could be either "install" or "delete"
 - task : could be either "all" or the task to execute :
@@ -115,7 +145,7 @@ Delete installation :
 ```
 ansible-playbook -i inventories/demo gitea.yml --extra-vars="operation=delete task=all" -u vagrant
 ```
-## 7. Gitea settings
+## 8. Gitea settings
 Installation settings are configured in **inventories/demo/group_vars/roles/gitea.yml** file :
 
 ```
