@@ -1,0 +1,17 @@
+---
+# file: roles/harbor/tasks/delete.yml
+
+- include_tasks: "roles/harbor/tasks/delete-harbor.yml"
+  when: task == "harbor" or task == "all"
+
+- include_tasks: "roles/harbor/tasks/delete-cfssl.yml"
+  when: task == "cfssl" or task == "all"
+
+- include_tasks: "roles/harbor/tasks/delete-repo.yml"
+  when: task == "repo" or task == "all"
+
+- include_tasks: "roles/harbor/tasks/delete-namespace.yml"
+  when: task == "namespace" or task == "all"
+
+- include_tasks: "roles/harbor/tasks/delete-pvc.yml"
+  when: task == "pvc"

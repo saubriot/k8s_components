@@ -1,0 +1,23 @@
+---
+# file: roles/harbor/tasks/install-harbor.yml
+
+- name: helm install harbor
+  shell: |
+    helm install {{ harbor.release }} harbor/harbor \
+      --namespace {{ harbor.namespace }} \
+      --set expose.ingress.hosts.core={{ harbor.ui.host }} \
+      --set expose.ingress.hosts.notary={{ harbor.notary.host }} \
+      --set expose.tls.secretName=tls-secret \
+      --set expose.tls.notarySecretName=tls-secret-notary \
+      --set persistence.enabled={{ harbor.persistence.enable }} \
+      --set externalURL=https://{{ harbor.ui.host }} \
+      --set harborAdminPassword={{ harbor.admin.password }} \
+      --set persistence.persistentVolumeClaim.registry.size={{ harbor.persistence.size.registry }} \
+      --set persistence.persistentVolumeClaim.chartmuseum.size={{ harbor.persistence.size.chartmuseum }} \
+      --set persistence.persistentVolumeClaim.jobservice.size={{ harbor.persistence.size.jobservice }} \
+      --set persistence.persistentVolumeClaim.database.size={{ harbor.persistence.size.database }} \
+      --set persistence.persistentVolumeClaim.redis.size={{ harbor.persistence.size.redis }} \
+      --set persistence.persistentVolumeClaim.trivy.size={{ harbor.persistence.size.trivy }}
+  become: true
+  become_user: kubeadmin
+

@@ -1,0 +1,9 @@
+---
+# file: roles/harbor/tasks/install-namespace.yml
+
+- name: install harbor namespace "{{ harbor.namespace }}"
+  shell: |
+    kubectl create namespace {{ harbor.namespace }}
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true

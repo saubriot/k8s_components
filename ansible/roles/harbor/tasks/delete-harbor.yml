@@ -1,0 +1,10 @@
+---
+# file: roles/harbor/tasks/delete-harbor.yml
+
+
+- name: helm uninstall harbor
+  shell: |
+    helm uninstall {{ harbor.release }} --namespace {{ harbor.namespace }} \
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true

@@ -1,0 +1,9 @@
+---
+# file: roles/harbor/tasks/delete-namespace.yml
+
+- name: delete harbor namespace "{{ harbor.namespace }}"
+  shell: |
+    kubectl delete namespace {{ harbor.namespace }}
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
