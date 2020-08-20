@@ -33,7 +33,7 @@ Note : The certificate is a self certificate generated usng cfssl.
 
 - Click [Install Gitea]
 
-
+> When installation is complete, you are redirect to the signin page.
 
 ![Gitea signin](images/gitea-signin.png)
 
