@@ -162,7 +162,7 @@ Move to your local repository and pull :
 ```
 cd /tmp/demo
 git pull
-more README.me
+more README.md
 ```
 ```
 # Hello World
@@ -170,7 +170,13 @@ more README.me
 
 ## 7. Create a OAuth2 authorization for Drone
 
+- Application name : **Drone**
+- Redirect URI : **https://drone.k8s.europe/login**
+- Click on **[ Create Application ]**
+
 ![Gitea create OAuth2 authorization for Drone](images/gitea-create-oauth2-drone.png)
+
+> We will use later (Drone installation) : ClientID and Secret values
 
 ![Gitea OAuth2 authorization for Drone created](images/gitea-oauth2-drone-created.png)
 
