@@ -1,4 +1,4 @@
-# A community managed lighweight code hosting
+# A community managed lightweight code hosting
 ## 1. Gitea installation
 Move to ansible directory (assuming git repo is installed in ~/k8s_components) and run the playbook gitea.yml.
 ```
@@ -85,7 +85,91 @@ Password for 'https://johndoe@gitea.k8s.europe':
 
 > File README.md has been pushed
 
-## 6. Using --extra-vars to customize installation
+## 6. Use ssh to pull & push repo
+### 6.1 Create your own key **id_rsa_gitea**
+
+Generate the key :
+```
+ssh-keygen -t rsa -f ~/.ssh/id_rsa_gitea  -q -N "" -C "johndoe@noname.com"
+```
+
+Copy the content of the key :
+```
+cat ~/.ssh/id_rsa_gitea.pub
+```
+```
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDHir+pNql15kGTLSR4Bd/a7UNI+d1p3I9gAwyrQv05jbGOiybip3jiUrNyGWkF18Vr8udX3VeBaqq4Zx3Ll4KKc6sPU38nS9jnLgyLow/xht22Bu0cEEyFB6Ki/jcUX5XhvdGbSZBxDwDYve+Fs7HCkfZunfiaYGXDlzVw5ZwtHSDEFPwkKoNZ7ULeko/8Frh8eHq4vKJ9Xy1kOpFDqWOgJPUN1nkuGD5VF2GcTM+OEqO2k2nPfpOX6tOs6aTh9BuqT4F+7YK3XzQW+MKpGSTTecfTpuQIZPMxGbCqEkeDlsD/766Jvmb6KZ4YZztQWzp1XmN0dJloonIYyrH1ieIJ johndoe@noname.com
+```
+### 6.2 Add a deploy key
+
+On **demo** repository :
+- Click on **[ Settings ]**
+- Click on **[ Deploy Keys ]**
+- Click on **[ Add Deploy Key ]**
+
+![Gitea add deploy key](images/gitea-add-deploy-key.png)
+
+- Validate **Enable Write Access**
+- Click on **[ Add Deploy Key ]**
+
+![Gitea deploy key added](images/gitea-deploy-key-added.png)
+
+> The deploy key is added to the demo repository
+
+### 6.3 Configure git for ssh login
+
+Move to your local repository and configure your .git/config file :
+
+```
+cd /tmp/demo
+cat << EOF> .git/config
+
+[core]
+  repositoryformatversion = 0
+  filemode = true
+  bare = false
+  logallrefupdates = true
+  sshCommand = ssh -i ~/.ssh/id_rsa_gitea
+
+[user]
+  name = johndoe
+  email = johndoe@noname.com
+
+[remote "origin"]
+  url = git@gitea.k8s.europe:johndoe/demo.git
+  fetch = +refs/heads/*:refs/remotes/origin/*
+
+[branch "master"]
+  remote = origin
+  merge = refs/heads/master
+
+EOF
+```
+
+### 6.4 Change README.md content on Gitea
+
+- Add an "Hello World" title :
+
+![Gitea change readme](images/gitea-change-readme.png)
+
+- Click on **[ Commit Changes ]**
+
+![Gitea change readme](images/gitea-readme-changed.png)
+
+
+### 6.5 Synchronize the local repository
+Move to your local repository and pull :
+```
+cd /tmp/demo
+git pull
+more README.me
+```
+```
+# Hello World
+```
+
+
+## 7. Using --extra-vars to customize installation
 The playbook accepts 2 extra vars :
 - operation : could be either "install" or "delete"
 - task : could be either "all" or the task to execute :
@@ -115,7 +199,7 @@ Delete installation :
 ```
 ansible-playbook -i inventories/demo gitea.yml --extra-vars="operation=delete task=all" -u vagrant
 ```
-## 7. Gitea settings
+## 8. Gitea settings
 Installation settings are configured in **inventories/demo/group_vars/roles/gitea.yml** file :
 
 ```
