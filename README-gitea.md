@@ -1,4 +1,4 @@
-# Default monitoring for Kubernetes
+# A community managed lighweight code hosting
 ## 1. Gitea installation
 Move to ansible directory (assuming git repo is installed in ~/k8s_components) and run the playbook prometheus.yml.
 ```
