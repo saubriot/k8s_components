@@ -36,8 +36,8 @@ See https://github.com/saubriot/k8s_ansible for vagrant demo environment.
 ## 3. Components
 ## 3.1. Default monitoring : prometheus
 
-See installation guide : (README-prometheus.md)
+[See installation guide](README-prometheus.md)
 
 ## 3.2. Distributed storage and default storage class : rook-ceph
 
-See installation guide : (README-rook-ceph.md)
+[See installation guide](README-rook-ceph.md)
