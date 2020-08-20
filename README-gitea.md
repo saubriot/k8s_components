@@ -49,7 +49,7 @@ Note : The certificate is a self certificate generated usng cfssl.
 
 ![Gitea dashboard](images/gitea-dashboard.png)
 
-- On Repositories tab, Click [+]
+- On the right **Repositories** frame, Click [+]
 
 ![Gitea new repository](images/gitea-new-repository.png)
 
