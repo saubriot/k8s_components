@@ -68,7 +68,7 @@ The playbook accepts 2 extra vars :
 - operation : could be either "install" or "delete"
 - task : could be either "all" or the task to execute :
     - helm : install helm tool
-    - repo : pull the operator locally on kubeadmin host
+    - repo : add helm repo and update
     - namespace : create namespace
     - stolon : configure and install a HA postgresql database using stolon architecture 
     - cfssl : configure certificates
