@@ -22,12 +22,16 @@ The ansible directory structure has been defined as followed :
         - all : global settings : all settings (local temporary directory)
         - prometheus : settings for prometheus
         - rook-ceph : settings for rook-ceph        
-        - rook-ceph-nodes : settings for rook-ceph-nodes        
+        - rook-ceph-nodes : settings for rook-ceph-nodes
+        - gitea : settings for gitea "Git with a cup of tea" : a community managed lightweight code hosting solution written in Go
+        - harbor : settings for harbor        
   - **roles**
     - **prometheus** : rprometheus installation tasks to execute
     - **rook-ceph** : rook-ceph distributed storage installation tasks to execute
     - **rook-ceph-nodes** : rook-ceph-nodes distributed storage installation tasks to execute
-     - **template** : templating for new component role
+    - **gitea** : gitea installation tasks to execute
+    - **harbor** : harbor installation tasks to execute 
+    - **template** : templating for new component role
 
 ## 2.2. Prerequisites 
 Requires a Kubernetes cluster up and running.
