@@ -37,7 +37,7 @@ Note : The certificate is a self certificate generated usng cfssl.
 
 ![Gitea signin](images/gitea-signin.png)
 
-## 3. Access Gitea : register new admin account
+## 3. Register new - admin - account
 
 - Click [Need an account? Register now.]
 
@@ -45,7 +45,7 @@ Note : The certificate is a self certificate generated usng cfssl.
 
 - Click [Register account]
 
-## 4. Access Gitea : add a new repository
+## 4. Add a new repository
 
 ![Gitea dashboard](images/gitea-dashboard.png)
 
