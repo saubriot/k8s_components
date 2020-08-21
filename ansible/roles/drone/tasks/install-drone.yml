@@ -116,7 +116,6 @@
       kind: Secret
       metadata:
         name: drone-rpc-secret
-        namespace: {{ drone.namespace }}
         labels:
           app: drone
       type: Opaque
@@ -128,7 +127,8 @@
 
 - name: kubectl apply -f /home/kubeadmin/drone/drone-rpc-secret.yaml
   shell: |
-    kubectl apply -f /home/kubeadmin/drone/drone-rpc-secret.yaml
+    kubectl apply -n {{ drone.namespace }} -f /home/kubeadmin/drone/drone-rpc-secret.yaml
+    kubectl apply -n {{ drone.runner.namespace }} -f /home/kubeadmin/drone/drone-rpc-secret.yaml
   become: true
   become_user: kubeadmin
 

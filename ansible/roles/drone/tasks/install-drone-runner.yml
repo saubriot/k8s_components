@@ -1,15 +1,21 @@
 ---
 # file: roles/drone/tasks/install-drone-runner.yml
 
-- name: create file /home/kubeadmin/drone/drone-role.yaml
+- name: create file /home/kubeadmin/drone/drone-runner-role.yaml
   copy:
     content: |
+      ---
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        namespace: {{ drone.runner.namespace }}
+        name: drone-runner-serviceaccount
       ---
       kind: Role
       apiVersion: rbac.authorization.k8s.io/v1
       metadata:
-        namespace: default
-        name: drone
+        namespace: {{ drone.runner.namespace }}
+        name: drone-runner-role
       rules:
       - apiGroups:
         - ""
@@ -34,22 +40,22 @@
       kind: RoleBinding
       apiVersion: rbac.authorization.k8s.io/v1
       metadata:
-        name: drone
-        namespace: default
+        name: drone-runner-rolebinding
+        namespace: {{ drone.runner.namespace }}
       subjects:
       - kind: ServiceAccount
-        name: default
-        namespace: default
+        name: drone-runner-serviceaccount
+        namespace: {{ drone.runner.namespace }}
       roleRef:
         kind: Role
-        name: drone
+        name: drone-runner-role
         apiGroup: rbac.authorization.k8s.io
-    dest: /home/kubeadmin/drone/drone-role.yaml
+    dest: /home/kubeadmin/drone/drone-runner-role.yaml
   become: true
   become_user: kubeadmin
 
-- name: kubectl apply -f /home/kubeadmin/drone/drone-role.yaml
-  shell: kubectl apply -f /home/kubeadmin/drone/drone-role.yaml
+- name: kubectl apply -f /home/kubeadmin/drone/drone-runner-role.yaml
+  shell: kubectl apply -f /home/kubeadmin/drone/drone-runner-role.yaml
   become: true
   become_user: kubeadmin
 
@@ -60,8 +66,8 @@
       apiVersion: apps/v1
       kind: Deployment
       metadata:
-        name: drone-runner
-        namespace: {{ drone.namespace }}
+        name: runner
+        namespace: {{ drone.runner.namespace }}
         labels:
           app.kubernetes.io/name: drone
       spec:
@@ -80,6 +86,8 @@
               ports:
               - containerPort: 3000
               env:
+              - name: DRONE_NAMESPACE_DEFAULT
+                value: {{ drone.runner.namespace }}
               - name: DRONE_RPC_HOST
                 value: {{ drone.ui.host }}
               - name: DRONE_RPC_PROTO
@@ -91,6 +99,7 @@
                   secretKeyRef:
                     name: drone-rpc-secret
                     key: rpc-secret      
+            serviceAccountName: drone-runner-serviceaccount
     dest: /home/kubeadmin/drone/drone-runner-deployment.yaml
   become: true
   become_user: kubeadmin
