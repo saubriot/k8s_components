@@ -192,7 +192,7 @@
 #- debug: var=stolon_pods_ready.stdout_lines
 
 - name: Wait for psql connection
-  shell: kubectl exec -it -n gitea gitea-stolon-keeper-0  -- psql "postgresql://{{ gitea.stolon.superuserUsername }}:{{ gitea.stolon.superuserPassword }}@gitea-stolon-proxy" -c "" && echo $?
+  shell: kubectl exec -it -n {{ gitea.namespace }} gitea-stolon-keeper-0  -- psql "postgresql://{{ gitea.stolon.superuserUsername }}:{{ gitea.stolon.superuserPassword }}@gitea-stolon-proxy" -c "" && echo $?
   register: result
 #  until: result.stdout.find("0") != -1
   until: result.stdout == "0"
@@ -204,20 +204,37 @@
 #- debug: var=result.stdout
 
 - name: create database {{ gitea.db.name }}
-  shell: kubectl exec -it -n gitea gitea-stolon-keeper-0  -- psql "postgresql://postgres:{{ gitea.stolon.superuserUsername }}@gitea-stolon-proxy" -c "create database {{ gitea.db.name }};"
+  shell: kubectl exec -it -n {{ gitea.namespace }} gitea-stolon-keeper-0  -- psql "postgresql://{{ gitea.stolon.superuserUsername }}:{{ gitea.stolon.superuserPassword }}@gitea-stolon-proxy" -c "create database {{ gitea.db.name }};"
   become: true
   become_user: kubeadmin
   ignore_errors: true
 
 - name: create user {{ gitea.db.user }}
-  shell: kubectl exec -it -n gitea gitea-stolon-keeper-0  -- psql "postgresql://{{ gitea.stolon.superuserUsername }}:{{ gitea.stolon.superuserPassword }}@gitea-stolon-proxy" -c "create user {{ gitea.db.user }} password '{{ gitea.db.password }}';"
+  shell: kubectl exec -it -n {{ gitea.namespace }} gitea-stolon-keeper-0  -- psql "postgresql://{{ gitea.stolon.superuserUsername }}:{{ gitea.stolon.superuserPassword }}@gitea-stolon-proxy" -c "create user {{ gitea.db.user }} password '{{ gitea.db.password }}';"
   become: true
   become_user: kubeadmin
   ignore_errors: true
 
 - name: grant user {{ gitea.db.user }} database {{ gitea.db.name }}
-  shell: kubectl exec -it -n gitea gitea-stolon-keeper-0  -- psql "postgresql://postgres:psspss@gitea-stolon-proxy" -c "grant all privileges on database {{ gitea.db.name }} to {{ gitea.db.user }};"
+  shell: kubectl exec -it -n {{ gitea.namespace }} gitea-stolon-keeper-0  -- psql "postgresql://{{ gitea.stolon.superuserUsername }}:{{ gitea.stolon.superuserPassword }}@gitea-stolon-proxy" -c "grant all privileges on database {{ gitea.db.name }} to {{ gitea.db.user }};"
   become: true
   become_user: kubeadmin
   ignore_errors: true
 
+- name: append webhook.SKIP_TLS_VERIFY=true to /data/gitea/conf/app.ini
+  shell: kubectl -n {{ gitea.namespace }} exec $(kubectl -n gitea get pod -l "app=gitea" -o jsonpath="{.items[0].metadata.name}") -- bash -c 'echo -e "[webhook]\nSKIP_TLS_VERIFY = {{ gitea.webhook.skip_tls_verify }}"|tee -a /data/gitea/conf/app.ini'
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: kubectl -n {{ gitea.namespace }} scale deploy gitea --replicas=0
+  shell: kubectl -n {{ gitea.namespace }} scale deploy gitea --replicas=0
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: kubectl -n {{ gitea.namespace }} scale deploy gitea --replicas=1
+  shell: kubectl -n {{ gitea.namespace }} scale deploy gitea --replicas=1
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true

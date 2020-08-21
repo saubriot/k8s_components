@@ -10,6 +10,9 @@ gitea:
   ssh_domain: gitea.k8s.europe
   ssh_external_ip: 192.168.10.190
 
+  webhook:
+    skip_tls_verify: true
+
   db:
     name: gitea
     user: gitea
