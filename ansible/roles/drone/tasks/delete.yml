@@ -1,6 +1,9 @@
 ---
 # file: roles/drone/tasks/delete.yml
 
+- include_tasks: "roles/drone/tasks/delete-drone-runner.yml"
+  when: task == "drone-runner" or task == "all"
+
 - include_tasks: "roles/drone/tasks/delete-drone.yml"
   when: task == "drone" or task == "all"
 

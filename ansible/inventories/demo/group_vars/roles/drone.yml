@@ -20,6 +20,8 @@ drone:
     name: drone
     user: drone
     password: password
+    host: drone-stolon-proxy
+    port: 5432
 
   stolon:
     release: drone-stolon

@@ -1,0 +1,16 @@
+---
+# file: roles/drone/tasks/delete-drone-runner.yml
+
+- name: kubectl delete -f /home/kubeadmin/drone/drone-runner-deployment.yaml
+  shell: |
+    kubectl delete -f /home/kubeadmin/drone/drone-runner-deployment.yaml
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: kubectl delete -f /home/kubeadmin/drone/drone-role.yaml
+  shell: |
+    kubectl delete -f /home/kubeadmin/drone/drone-role.yaml
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
