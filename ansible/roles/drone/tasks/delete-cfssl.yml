@@ -1,0 +1,12 @@
+---
+# file: roles/drone/tasks/delete-cfssl.yml
+
+- name: rm files /home/kubeadmin/cfssl/drone*
+  file:
+    path: /home/kubeadmin/cfssl/{{ item }}
+    state: absent
+  loop:
+    - drone-csr.json  
+    - drone-key.pem  
+    - drone.csr  
+    - drone.pem

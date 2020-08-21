@@ -1,0 +1,9 @@
+---
+# file: roles/drone/tasks/install-namespace.yml
+
+- name: install gitea namespace "{{ drone.namespace }}"
+  shell: |
+    kubectl create namespace {{ drone.namespace }}
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true

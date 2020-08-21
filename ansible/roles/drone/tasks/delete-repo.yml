@@ -1,0 +1,7 @@
+---
+# file: roles/drone/tasks/delete-repo.yml
+
+- name: rm folder /home/kubeadmin/drone
+  file:
+    path: /home/kubeadmin/drone
+    state: absent

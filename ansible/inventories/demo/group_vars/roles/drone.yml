@@ -1,0 +1,43 @@
+
+# drone configuration
+
+drone:
+  namespace: drone
+
+  runner:
+    rpc_skip_verify: true # if using self signed certificates
+
+  gitea:
+    skip_verify: true # if using self signed certificates
+    server: https://gitea.k8s.europe
+
+  persistence:
+    size: 200Mi
+
+  db:
+    name: drone
+    user: drone
+    password: password
+    host: drone-stolon-proxy
+    port: 5432
+
+  stolon:
+    release: drone-stolon
+    superuserUsername: postgres
+    superuserPassword: password
+    replicationPassword: password
+
+    persistence:
+      size: 400Mi
+    keeper:
+      replicaCount: 2
+    proxy:
+      replicaCount: 2
+
+  ca:
+    csr_C: EU
+    csr_L: paris
+    csr_ST: france
+  ui:
+    csr_CN: drone.k8s.europe
+    host: drone.k8s.europe

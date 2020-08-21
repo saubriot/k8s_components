@@ -1,0 +1,8 @@
+---
+# file: drone.yml
+- hosts: kubeadmin
+  become: true
+  roles:
+    - drone
+  vars_files:
+    - "{{ inventory_dir }}/group_vars/roles/drone.yml"

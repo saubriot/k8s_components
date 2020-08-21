@@ -1,0 +1,237 @@
+---
+# file: roles/drone/tasks/install-drone.yml
+
+#- debug: var=stolon_pods_ready.stdout_lines
+
+- name: Wait for psql connection
+  shell: kubectl exec -it -n {{ drone.namespace }} drone-stolon-keeper-0  -- psql "postgresql://{{ drone.stolon.superuserUsername }}:{{ drone.stolon.superuserPassword }}@drone-stolon-proxy" -c "" && echo $?
+  register: result
+#  until: result.stdout.find("0") != -1
+  until: result.stdout == "0"
+  retries: 10
+  delay: 10
+  become: true
+  become_user: kubeadmin
+
+#- debug: var=result.stdout
+
+- name: create database {{ drone.db.name }}
+  shell: kubectl exec -it -n {{ drone.namespace }} drone-stolon-keeper-0  -- psql "postgresql://{{ drone.stolon.superuserUsername }}:{{ drone.stolon.superuserPassword }}@drone-stolon-proxy" -c "create database {{ drone.db.name }};"
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: create user {{ drone.db.user }}
+  shell: kubectl exec -it -n {{ drone.namespace }} drone-stolon-keeper-0  -- psql "postgresql://{{ drone.stolon.superuserUsername }}:{{ drone.stolon.superuserPassword }}@drone-stolon-proxy" -c "create user {{ drone.db.user }} password '{{ drone.db.password }}';"
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: grant user {{ drone.db.user }} database {{ drone.db.name }}
+  shell: kubectl exec -it -n {{ drone.namespace }} drone-stolon-keeper-0  -- psql "postgresql://{{ drone.stolon.superuserUsername }}:{{ drone.stolon.superuserPassword }}@drone-stolon-proxy" -c "grant all privileges on database {{ drone.db.name }} to {{ drone.db.user }};"
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: create file /home/kubeadmin/drone/drone-service.yaml
+  copy:
+    content: |
+      ---
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: drone-http
+        namespace: {{ drone.namespace }}
+      spec:
+        ports:
+        - name: drone-http
+          port: 80
+          targetPort: 80
+        selector:
+          app: drone
+        clusterIP: None
+      ---
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: drone-https
+        namespace: {{ drone.namespace }}
+      spec:
+        ports:
+        - name: drone-https
+          port: 443
+          targetPort: 443
+        selector:
+          app: drone
+        clusterIP: None
+    dest: /home/kubeadmin/drone/drone-service.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: kubectl apply -f /home/kubeadmin/drone/drone-service.yaml
+  shell: |
+    kubectl apply -f /home/kubeadmin/drone/drone-service.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/drone/drone-pvc.yaml
+  copy:
+    content: |
+      ---
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: drone-pv-claim
+        namespace: {{ drone.namespace }}
+        labels:
+          app: drone
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ drone.persistence.size }}
+    dest: /home/kubeadmin/drone/drone-pvc.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: kubectl apply -f /home/kubeadmin/drone/drone-pvc.yaml
+  shell: |
+    kubectl apply -f /home/kubeadmin/drone/drone-pvc.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: generate a shared secret
+  shell: |
+    openssl rand -hex 16
+  register: drone_rpc_secret
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/drone/drone-rpc-secret.yaml
+  copy:
+    content: |
+      ---
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: drone-rpc-secret
+        namespace: {{ drone.namespace }}
+        labels:
+          app: drone
+      type: Opaque
+      stringData: 
+        rpc-secret: {{ drone_rpc_secret.stdout }}
+    dest: /home/kubeadmin/drone/drone-rpc-secret.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: kubectl apply -f /home/kubeadmin/drone/drone-rpc-secret.yaml
+  shell: |
+    kubectl apply -f /home/kubeadmin/drone/drone-rpc-secret.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/drone/drone-deployment.yaml
+  copy:
+    content: |
+      ---
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: drone
+        namespace: {{ drone.namespace }}
+        labels:
+          app: drone
+      spec:
+        selector:
+          matchLabels:
+            app: drone
+            tier: drone
+        strategy:
+          type: RollingUpdate
+          rollingUpdate:
+            maxSurge: 1
+            maxUnavailable: 0
+        template:
+          metadata:
+            labels:
+              app: drone
+              tier: drone
+          spec:
+            containers:
+            - image: drone/drone:latest
+              name: drone
+              env:
+              - name: DRONE_GITEA_CLIENT_ID
+                value: "{{ GITEA_CLIENT_ID }}"
+              - name: DRONE_GITEA_CLIENT_SECRET
+                value: "{{ GITEA_CLIENT_SECRET }}"
+              - name: DRONE_GITEA_SERVER
+                value: "{{ drone.gitea.server }}"
+              - name: DRONE_GITEA_SKIP_VERIFY
+                value: "{{ drone.gitea.skip_verify }}"
+              - name: DRONE_RPC_SECRET
+                valueFrom:
+                  secretKeyRef:
+                    name: drone-rpc-secret
+                    key: rpc-secret
+              - name: DRONE_SERVER_HOST
+                value: "{{ drone.ui.host }}"
+              - name: DRONE_SERVER_PROTO
+                value: "https"
+              - name: DRONE_DATABASE_DRIVER
+                value: "postgres"
+              - name: DRONE_DATABASE_DATASOURCE
+                value: "postgres://{{ drone.db.user }}:{{ drone.db.password }}@{{ drone.db.host }}:{{ drone.db.port }}/{{ drone.db.name }}?sslmode=disable"
+              ports:
+              - containerPort: 80
+                name: drone-http
+              - containerPort: 443
+                name: drone-https
+              volumeMounts:
+              - name: drone-persistent-storage
+                mountPath: /data
+            volumes:
+            - name: drone-persistent-storage
+              persistentVolumeClaim:
+                claimName: drone-pv-claim      
+    dest: /home/kubeadmin/drone/drone-deployment.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: kubectl apply -f /home/kubeadmin/drone/drone-deployment.yaml
+  shell: |
+    kubectl apply -f /home/kubeadmin/drone/drone-deployment.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/drone/drone-nginx.yaml
+  copy:
+    content: |
+      apiVersion: extensions/v1beta1
+      kind: Ingress
+      metadata:
+        name: drone-nginx
+        namespace: {{ drone.namespace }}
+        annotations:
+          kubernetes.io/ingress.class: nginx
+      spec:
+        tls:
+        - secretName: tls-secret
+        rules:
+        - host: {{ drone.ui.host }}
+          http:
+            paths:
+            - path: /
+              backend:
+                serviceName: drone-http
+                servicePort: 80
+    dest: /home/kubeadmin/drone/drone-nginx.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: apply ui nginx ingress
+  shell: kubectl apply -f /home/kubeadmin/drone/drone-nginx.yaml
+  become: true
+  become_user: kubeadmin

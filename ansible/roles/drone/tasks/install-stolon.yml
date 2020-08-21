@@ -1,0 +1,35 @@
+---
+# file: roles/drone/tasks/install-stolon.yml
+
+- name: mkdir folder /home/kubeadmin/drone/stolon
+  file:
+    path: /home/kubeadmin/drone/stolon
+    state: directory
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/drone/stolon/config.yaml
+  copy:
+    content: |
+      superuserUsername: {{ drone.stolon.superuserUsername }}
+      superuserPassword: {{ drone.stolon.superuserPassword }}
+      replicationPassword: {{ drone.stolon.replicationPassword }}
+  
+      persistence:
+        size: {{ drone.stolon.persistence.size }}
+      keeper:
+        replicaCount: {{ drone.stolon.keeper.replicaCount }}
+      proxy:
+        replicaCount: {{ drone.stolon.proxy.replicaCount }}
+      
+    dest: /home/kubeadmin/drone/stolon/config.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: helm install stolon
+  shell: |
+    helm repo add stable https://kubernetes-charts.storage.googleapis.com
+    helm install --namespace {{ drone.namespace }} {{ drone.stolon.release }} stable/stolon --values /home/kubeadmin/drone/stolon/config.yaml
+  become: true
+  become_user: kubeadmin
+
