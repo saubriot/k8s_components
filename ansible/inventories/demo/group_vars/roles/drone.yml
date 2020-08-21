@@ -3,7 +3,9 @@
 
 drone:
   namespace: drone
-  rpc_secret: CHANGE_ME
+
+  runner:
+    rpc_skip_verify: true # if using self signed certificates
 
   gitea:
     skip_verify: true # if using self signed certificates
