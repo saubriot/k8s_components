@@ -3,24 +3,15 @@
 
 drone:
   namespace: drone
+  rpc_secret: CHANGE_ME
 
-  db:
-    name: drone
-    user: drone
-    password: password
+  gitea:
+    client_id: CHANGE_ME
+    client_secret: CHANGE_ME
+    server: https://gitea.k8s.europe
 
-  stolon:
-    release: drone-stolon
-    superuserUsername: postgres
-    superuserPassword: password
-    replicationPassword: password
-
-    persistence:
-      size: 2Gi
-    keeper:
-      replicaCount: 2
-    proxy:
-      replicaCount: 2
+  persistence:
+    size: 2Gi
 
   ca:
     csr_C: EU
