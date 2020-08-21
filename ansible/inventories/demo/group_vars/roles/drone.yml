@@ -1,0 +1,31 @@
+
+# drone configuration
+
+drone:
+  namespace: drone
+
+  db:
+    name: drone
+    user: drone
+    password: password
+
+  stolon:
+    release: drone-stolon
+    superuserUsername: postgres
+    superuserPassword: password
+    replicationPassword: password
+
+    persistence:
+      size: 2Gi
+    keeper:
+      replicaCount: 2
+    proxy:
+      replicaCount: 2
+
+  ca:
+    csr_C: EU
+    csr_L: paris
+    csr_ST: france
+  ui:
+    csr_CN: drone.k8s.europe
+    host: drone.k8s.europe

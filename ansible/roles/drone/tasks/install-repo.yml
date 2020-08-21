@@ -1,0 +1,11 @@
+---
+# file: roles/drone/tasks/install-repo.yml
+
+- name: mkdir folder /home/kubeadmin/drone
+  file:
+    path: /home/kubeadmin/drone
+    state: directory
+  become: true
+  become_user: kubeadmin
+
+

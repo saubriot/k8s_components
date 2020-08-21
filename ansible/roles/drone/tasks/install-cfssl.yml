@@ -1,0 +1,40 @@
+---
+# file: roles/drone/tasks/install-cfssl.yml
+
+- name: create file /home/kubeadmin/cfssl/drone-csr.json
+  copy:
+    content: |
+      {
+          "CN": "{{ drone.ui.csr_CN }}",
+          "hosts": [
+              "{{ drone.ui.host }}"
+          ],
+          "key": {
+              "algo": "rsa",
+              "size": 2048
+          },
+          "names": [
+              {
+                  "C": "{{ drone.ca.csr_C }}",
+                  "L": "{{ drone.ca.csr_L }}",
+                  "ST": "{{ drone.ca.csr_ST }}"
+              }
+          ]
+      }
+    dest: /home/kubeadmin/cfssl/drone-csr.json
+  become: true
+  become_user: kubeadmin
+
+- name: cfssl gencert
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=web-servers drone-csr.json | cfssljson -bare drone
+  become: true
+  become_user: kubeadmin
+
+- name: create secret tls-secret
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    kubectl create secret tls tls-secret --key ./drone-key.pem --cert drone.pem -n {{ drone.namespace }}
+  become: true
+  become_user: kubeadmin

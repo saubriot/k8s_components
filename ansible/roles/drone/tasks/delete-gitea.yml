@@ -1,0 +1,47 @@
+---
+# file: roles/gitea/tasks/delete-gitea.yml
+
+- name: drop user {{ gitea.db.user }}
+  shell: kubectl exec -it -n gitea gitea-stolon-keeper-0  -- psql "postgresql://postgres:psspss@gitea-stolon-proxy" -c "revoke all privileges on database {{ gitea.db.name }} from {{ gitea.db.user }};"
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: drop database {{ gitea.db.name }}
+  shell: kubectl exec -it -n gitea gitea-stolon-keeper-0  -- psql "postgresql://postgres:psspss@gitea-stolon-proxy" -c "drop database {{ gitea.db.name }};"
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: drop user {{ gitea.db.user }}
+  shell: kubectl exec -it -n gitea gitea-stolon-keeper-0  -- psql "postgresql://postgres:psspss@gitea-stolon-proxy" -c "drop user {{ gitea.db.user }};"
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: delete ui nginx ingress
+  shell: kubectl delete -f /home/kubeadmin/gitea/gitea-nginx.yaml
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: kubectl delete -f /home/kubeadmin/gitea/gitea-deployment.yaml
+  shell: |
+    kubectl delete -f /home/kubeadmin/gitea/gitea-deployment.yaml
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: kubectl delete -f /home/kubeadmin/gitea/gitea-pvc.yaml
+  shell: |
+    kubectl delete -f /home/kubeadmin/gitea/gitea-pvc.yaml
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: kubectl delete -f /home/kubeadmin/gitea/gitea-service.yaml
+  shell: |
+    kubectl delete -f /home/kubeadmin/gitea/gitea-service.yaml
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true

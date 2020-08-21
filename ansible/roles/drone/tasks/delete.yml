@@ -1,0 +1,18 @@
+---
+# file: roles/gitea/tasks/delete.yml
+
+- include_tasks: "roles/gitea/tasks/delete-gitea.yml"
+  when: task == "gitea" or task == "all"
+
+- include_tasks: "roles/gitea/tasks/delete-cfssl.yml"
+  when: task == "cfssl" or task == "all"
+
+- include_tasks: "roles/gitea/tasks/delete-stolon.yml"
+  when: task == "stolon" or task == "all"
+
+- include_tasks: "roles/gitea/tasks/delete-repo.yml"
+  when: task == "repo" or task == "all"
+
+- include_tasks: "roles/gitea/tasks/delete-namespace.yml"
+  when: task == "namespace" or task == "all"
+
