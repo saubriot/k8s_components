@@ -9,7 +9,7 @@ We will install :
 
 # 2. Second objective
 Install useful components :
-- CI/CD tools
+- CI/CD tools : gitea, harbor, drone ...
 - Data components
 - ...
 
@@ -22,6 +22,7 @@ The ansible directory structure has been defined as followed :
   - rook-ceph-nodes.yml : prepare nodes for rook-ceph installation : create mount points on each node
   - gitea.yml : install gitea code hosting
   - harbor.yml : install harbor repository
+  - drone.yml : install drone Continuous Integration platform
   - template.yml : templating script for new component
   - **inventories** : contains information about the environments to deploy
     - **demo** : demo environment
@@ -39,6 +40,7 @@ The ansible directory structure has been defined as followed :
     - **rook-ceph-nodes** : rook-ceph-nodes distributed storage installation tasks to execute
     - **gitea** : gitea installation tasks to execute
     - **harbor** : harbor installation tasks to execute 
+    - **drone** : drone installation tasks to execute
     - **template** : templating for new component role
 
 ## 3.2. Prerequisites 
@@ -63,3 +65,6 @@ See https://github.com/saubriot/k8s_ansible for vagrant demo environment.
 
 [See installation guide](README-harbor.md)
 
+### 4.3.c. A self-service Continuous Integration platform : drone
+
+[See installation guide](README-drone.md)
