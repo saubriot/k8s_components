@@ -4,6 +4,21 @@
 - Log in https://gitea.k8s.europe
 - On user **[ Settings ]** click on **[ Applications ]** tab
 
+![Gitea Applications](images/drone-gitea-oauth2-applications.png)
+
+- On frame **[  Manage OAuth2 Applications ]** click on **[ Edit ]** for application **Drone**
+
+![Gitea Applications](images/drone-gitea-oauth2-application-drone.png)
+
+- Click on **[ Regenerate Secret ]**
+
+![Gitea Applications](images/drone-gitea-oauth2-application-drone-regenerate.png)
+
+- Copy values for :
+  - Client ID : **153aac09-8967-4568-9574-7f035df84d02**
+  - Client Secret : **3Z3mGJTGe6kkAMlnwYcURD9G9ARGNMANCP6XkJf-Fgk=**
+
+> These values will be used during Drone installation for linking Drone with Gitea 
 
 ## 2. Drone installation
 Move to ansible directory (assuming git repo is installed in ~/k8s_components) and run the playbook drone.yml.
