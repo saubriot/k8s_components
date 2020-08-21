@@ -18,6 +18,8 @@
   - Client ID : **153aac09-8967-4568-9574-7f035df84d02**
   - Client Secret : **3Z3mGJTGe6kkAMlnwYcURD9G9ARGNMANCP6XkJf-Fgk=**
 
+- And click **[ Save ]**
+
 > These values will be used during Drone installation for linking Drone with Gitea 
 
 ## 2. Drone installation
@@ -25,7 +27,7 @@ Move to ansible directory (assuming git repo is installed in ~/k8s_components) a
 ```
 cd ~/k8s_components/ansible
 export ANSIBLE_CONFIG=~/.ansible/ansible.cfg
-ansible-playbook -i inventories/demo drone.yml --extra-vars="operation=install" -u vagrant
+ansible-playbook -i inventories/demo drone.yml --extra-vars="operation=install GITEA_CLIENT_ID=153aac09-8967-4568-9574-7f035df84d02  GITEA_CLIENT_SECRET=3Z3mGJTGe6kkAMlnwYcURD9G9ARGNMANCP6XkJf-Fgk=" -u vagrant
 ```
 ```
 
@@ -38,170 +40,28 @@ ok: [paris.europe]
 ...
 
 PLAY RECAP **************************************************************************************
-paris.europe               : ok=34   changed=22    unreachable=0    failed=0   
+paris.europe               : ok=41   changed=29    unreachable=0    failed=0   
 
 ```
-## 2. Access Gitea : installation
+## 3. Access Drone : installation
 
-Open your browser (Firefox in our case) at https://gitea.k8s.europe 
+Open your browser (Firefox in our case) at https://drone.k8s.europe 
 
 Note : The certificate is a self certificate generated usng cfssl. 
 
 - Click on **[ Advanced... ]** 
 - Click on **[ Accept the Risk and Continue ]**
 
-![Gitea installation](images/gitea-installation.png)
+![Drone Authorize Application](images/drone-authorize-application.png)
 
-- Click **[ Install Gitea ]**
+- Click **[ Authorize Application ]**
 
 > When installation is complete, you are redirect to the signin page.
 
-![Gitea signin](images/gitea-signin.png)
-
-## 3. Register new - admin - account
-
-- Click **[ Need an account? Register now. ]**
-
-![Gitea register](images/gitea-register.png)
-
-- Click **[ Register account ]**
-
-## 4. Add a new repository
-
-![Gitea dashboard](images/gitea-dashboard.png)
-
-- On the right **Repositories** frame, Click **[ + ]**
-
-![Gitea new repository](images/gitea-new-repository.png)
-
-- Click on **[ SSH ]** to view the ssh uri : git@gitea.k8s.europe:johndoe/demo.git
-
-![Gitea repository ssh](images/gitea-repository-ssh.png)
-
-- Click on **[ HTTPS ]** to view the https uri : https://gitea.k8s.europe/johndoe/demo.git
-
-> In our case we are using self signed certificates. You need to add "git config --global **http.sslVerify false**" command
-
-![Gitea repository https](images/gitea-repository-https.png)
-
-## 5. Create your local repository
-On your local machine, create a local repository /tmp/demo, add a content README.md and push to gitea repo gitea.k8s.europe/johndoe/demo.git :
-```
-mkdir -p /tmp/demo
-cd /tmp/demo
-touch README.md
-git init
-git add README.md
-git commit -m "first commit"
-git remote add origin https://gitea.k8s.europe/johndoe/demo.git
-git config --global http.sslVerify false
-git push -u origin master
-Username for 'https://gitea.k8s.europe': johndoe
-Password for 'https://johndoe@gitea.k8s.europe': 
-```
-
-- Click on your **[ demo ]** repository to view the changes :
-
-![Gitea repository demo commit](images/gitea-repo-demo-commit.png)
-
-> File README.md has been pushed
-
-## 6. Use ssh to pull & push repo
-### 6.1 Create your own key **id_rsa_gitea**
-
-Generate the key :
-```
-ssh-keygen -t rsa -f ~/.ssh/id_rsa_gitea  -q -N "" -C "johndoe@noname.com"
-```
-
-Copy the content of the key :
-```
-cat ~/.ssh/id_rsa_gitea.pub
-```
-```
-ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDHir+pNql15kGTLSR4Bd/a7UNI+d1p3I9gAwyrQv05jbGOiybip3jiUrNyGWkF18Vr8udX3VeBaqq4Zx3Ll4KKc6sPU38nS9jnLgyLow/xht22Bu0cEEyFB6Ki/jcUX5XhvdGbSZBxDwDYve+Fs7HCkfZunfiaYGXDlzVw5ZwtHSDEFPwkKoNZ7ULeko/8Frh8eHq4vKJ9Xy1kOpFDqWOgJPUN1nkuGD5VF2GcTM+OEqO2k2nPfpOX6tOs6aTh9BuqT4F+7YK3XzQW+MKpGSTTecfTpuQIZPMxGbCqEkeDlsD/766Jvmb6KZ4YZztQWzp1XmN0dJloonIYyrH1ieIJ johndoe@noname.com
-```
-### 6.2 Add a deploy key
-
-On **demo** repository :
-- Click on **[ Settings ]**
-- Click on **[ Deploy Keys ]**
-- Click on **[ Add Deploy Key ]**
-
-![Gitea add deploy key](images/gitea-add-deploy-key.png)
-
-- Validate **Enable Write Access**
-- Click on **[ Add Deploy Key ]**
-
-![Gitea deploy key added](images/gitea-deploy-key-added.png)
-
-> The deploy key is added to the demo repository
-
-### 6.3 Configure git for ssh login
-
-Move to your local repository and configure your .git/config file :
-
-```
-cd /tmp/demo
-cat << EOF> .git/config
-
-[core]
-  repositoryformatversion = 0
-  filemode = true
-  bare = false
-  logallrefupdates = true
-  sshCommand = ssh -i ~/.ssh/id_rsa_gitea
-
-[user]
-  name = johndoe
-  email = johndoe@noname.com
-
-[remote "origin"]
-  url = git@gitea.k8s.europe:johndoe/demo.git
-  fetch = +refs/heads/*:refs/remotes/origin/*
-
-[branch "master"]
-  remote = origin
-  merge = refs/heads/master
-
-EOF
-```
-
-### 6.4 Change README.md content on Gitea
-
-- Add an "Hello World" title :
-
-![Gitea change readme](images/gitea-change-readme.png)
-
-- Click on **[ Commit Changes ]**
-
-![Gitea change readme](images/gitea-readme-changed.png)
+![Drone syncing](images/drone-syncing.png)
 
 
-### 6.5 Synchronize the local repository
-Move to your local repository and pull :
-```
-cd /tmp/demo
-git pull
-more README.md
-```
-```
-# Hello World
-```
-
-## 7. Create a OAuth2 authorization for Drone
-
-- Application name : **Drone**
-- Redirect URI : **https://drone.k8s.europe/login**
-- Click on **[ Create Application ]**
-
-![Gitea create OAuth2 authorization for Drone](images/gitea-create-oauth2-drone.png)
-
-> We will use later (Drone installation) : ClientID and Secret values
-
-![Gitea OAuth2 authorization for Drone created](images/gitea-oauth2-drone-created.png)
-
-## 8. Using --extra-vars to customize installation
+## 4. Using --extra-vars to customize installation
 The playbook accepts 2 extra vars :
 - operation : could be either "install" or "delete"
 - task : could be either "all" or the task to execute :
@@ -210,55 +70,64 @@ The playbook accepts 2 extra vars :
     - namespace : create namespace
     - stolon : configure and install a HA postgresql database using stolon architecture 
     - cfssl : configure certificates
-    - gitea : configure and install Gitea
+    - drone : configure and install Drone
+    - drone-runner : configure and install Drone Runner
 
 Examples :
 
 Step by step installation :
 ```
-ansible-playbook -i inventories/demo gitea.yml --extra-vars="operation=install task=helm" -u vagrant
-ansible-playbook -i inventories/demo gitea.yml --extra-vars="operation=install task=repo" -u vagrant
-ansible-playbook -i inventories/demo gitea.yml --extra-vars="operation=install task=namespace" -u vagrant
-ansible-playbook -i inventories/demo gitea.yml --extra-vars="operation=install task=stolon" -u vagrant
-ansible-playbook -i inventories/demo gitea.yml --extra-vars="operation=install task=cfssl" -u vagrant
-ansible-playbook -i inventories/demo gitea.yml --extra-vars="operation=install task=gitea" -u vagrant
+ansible-playbook -i inventories/demo drone.yml --extra-vars="operation=install task=helm" -u vagrant
+ansible-playbook -i inventories/demo drone.yml --extra-vars="operation=install task=drone" -u vagrant
+ansible-playbook -i inventories/demo drone.yml --extra-vars="operation=install task=namespace" -u vagrant
+ansible-playbook -i inventories/demo drone.yml --extra-vars="operation=install task=stolon" -u vagrant
+ansible-playbook -i inventories/demo drone.yml --extra-vars="operation=install task=cfssl" -u vagrant
+ansible-playbook -i inventories/demo drone.yml --extra-vars="operation=install task=drone" -u vagrant
+ansible-playbook -i inventories/demo drone-runner.yml --extra-vars="operation=install task=drone GITEA_CLIENT_ID=153aac09-8967-4568-9574-7f035df84d02  GITEA_CLIENT_SECRET=3Z3mGJTGe6kkAMlnwYcURD9G9ARGNMANCP6XkJf-Fgk=" -u vagrant
 ```
-Delete Gitea :
+Delete Drone & Drone Runner :
 ```
-ansible-playbook -i inventories/demo gitea.yml --extra-vars="operation=delete task=gitea" -u vagrant
+ansible-playbook -i inventories/demo drone.yml --extra-vars="operation=delete task=drone-runner" -u vagrant
+ansible-playbook -i inventories/demo drone.yml --extra-vars="operation=delete task=drone" -u vagrant
 ```
 Delete installation :
 ```
-ansible-playbook -i inventories/demo gitea.yml --extra-vars="operation=delete task=all" -u vagrant
+ansible-playbook -i inventories/demo drone.yml --extra-vars="operation=delete task=all" -u vagrant
 ```
-## 9. Gitea settings
-Installation settings are configured in **inventories/demo/group_vars/roles/gitea.yml** file :
+## 5. Drone settings
+Installation settings are configured in **inventories/demo/group_vars/roles/drone.yml** file :
 
 ```
-# gitea configuration
+# drone configuration
 
-gitea:
-  namespace: gitea
+drone:
+  namespace: drone
 
-  app: Gitea
-  domain: gitea.k8s.europe
-  root_url: https://gitea.k8s.europe
-  ssh_domain: gitea.k8s.europe
-  ssh_external_ip: 192.168.10.190
+  runner:
+    rpc_skip_verify: true # if using self signed certificates
+
+  gitea:
+    skip_verify: true # if using self signed certificates
+    server: https://gitea.k8s.europe
+
+  persistence:
+    size: 200Mi
 
   db:
-    name: gitea
-    user: gitea
+    name: drone
+    user: drone
     password: password
+    host: drone-stolon-proxy
+    port: 5432
 
   stolon:
-    release: gitea-stolon
+    release: drone-stolon
     superuserUsername: postgres
     superuserPassword: password
     replicationPassword: password
 
     persistence:
-      size: 2Gi
+      size: 400Mi
     keeper:
       replicaCount: 2
     proxy:
@@ -269,6 +138,6 @@ gitea:
     csr_L: paris
     csr_ST: france
   ui:
-    csr_CN: gitea.k8s.europe
-    host: gitea.k8s.europe
+    csr_CN: drone.k8s.europe
+    host: drone.k8s.europe
 ```
