@@ -1,5 +1,5 @@
 ---
-# file: roles/template/tasks/main.yml
+# file: roles/harbor/tasks/main.yml
 
 - include_tasks: "install.yml"
   tags: install
