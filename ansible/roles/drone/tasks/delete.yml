@@ -10,6 +10,9 @@
 - include_tasks: "roles/drone/tasks/delete-repo.yml"
   when: task == "repo" or task == "all"
 
+- include_tasks: "roles/drone/tasks/delete-stolon.yml"
+  when: task == "stolon" or task == "all"
+
 - include_tasks: "roles/drone/tasks/delete-namespace.yml"
   when: task == "namespace" or task == "all"
 

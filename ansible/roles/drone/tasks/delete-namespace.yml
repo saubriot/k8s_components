@@ -1,7 +1,7 @@
 ---
 # file: roles/drone/tasks/delete-namespace.yml
 
-- name: delete gitea namespace "{{ drone.namespace }}"
+- name: delete namespace "{{ drone.namespace }}"
   shell: |
     kubectl delete namespace {{ drone.namespace }}
   become: true

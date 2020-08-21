@@ -1,0 +1,11 @@
+---
+# file: roles/drone/tasks/delete-stolon.yml
+
+- name: helm uninstall stolon
+  shell: |
+    helm uninstall --namespace {{ drone.namespace }} {{ drone.stolon.release }}
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+

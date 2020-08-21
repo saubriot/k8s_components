@@ -16,6 +16,24 @@ drone:
   persistence:
     size: 200Mi
 
+  db:
+    name: drone
+    user: drone
+    password: password
+
+  stolon:
+    release: drone-stolon
+    superuserUsername: postgres
+    superuserPassword: password
+    replicationPassword: password
+
+    persistence:
+      size: 400Mi
+    keeper:
+      replicaCount: 2
+    proxy:
+      replicaCount: 2
+
   ca:
     csr_C: EU
     csr_L: paris

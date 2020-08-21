@@ -1,6 +1,38 @@
 ---
 # file: roles/drone/tasks/install-drone.yml
 
+#- debug: var=stolon_pods_ready.stdout_lines
+
+- name: Wait for psql connection
+  shell: kubectl exec -it -n {{ drone.namespace }} drone-stolon-keeper-0  -- psql "postgresql://{{ drone.stolon.superuserUsername }}:{{ drone.stolon.superuserPassword }}@drone-stolon-proxy" -c "" && echo $?
+  register: result
+#  until: result.stdout.find("0") != -1
+  until: result.stdout == "0"
+  retries: 10
+  delay: 10
+  become: true
+  become_user: kubeadmin
+
+#- debug: var=result.stdout
+
+- name: create database {{ drone.db.name }}
+  shell: kubectl exec -it -n {{ drone.namespace }} drone-stolon-keeper-0  -- psql "postgresql://{{ drone.stolon.superuserUsername }}:{{ drone.stolon.superuserPassword }}@drone-stolon-proxy" -c "create database {{ drone.db.name }};"
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: create user {{ drone.db.user }}
+  shell: kubectl exec -it -n {{ drone.namespace }} drone-stolon-keeper-0  -- psql "postgresql://{{ drone.stolon.superuserUsername }}:{{ drone.stolon.superuserPassword }}@drone-stolon-proxy" -c "create user {{ drone.db.user }} password '{{ drone.db.password }}';"
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: grant user {{ drone.db.user }} database {{ drone.db.name }}
+  shell: kubectl exec -it -n {{ drone.namespace }} drone-stolon-keeper-0  -- psql "postgresql://{{ drone.stolon.superuserUsername }}:{{ drone.stolon.superuserPassword }}@drone-stolon-proxy" -c "grant all privileges on database {{ drone.db.name }} to {{ drone.db.user }};"
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
 - name: create file /home/kubeadmin/drone/drone-service.yaml
   copy:
     content: |
