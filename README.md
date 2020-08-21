@@ -33,6 +33,7 @@ The ansible directory structure has been defined as followed :
         - rook-ceph : settings for rook-ceph        
         - rook-ceph-nodes : settings for rook-ceph-nodes
         - gitea : settings for Gitea : a community managed lightweight code hosting solution written in Go
+        - drone : settings for Drone : a self-service Continuous Integration platform
         - harbor : settings for harbor : a trusted cloud native repository for Kubernetes        
   - **roles**
     - **prometheus** : rprometheus installation tasks to execute
