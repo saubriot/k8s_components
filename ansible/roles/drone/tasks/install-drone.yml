@@ -69,6 +69,36 @@
   become: true
   become_user: kubeadmin
 
+- name: generate a shared secret
+  shell: |
+    openssl rand -hex 16
+  register: drone_rpc_secret
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/drone/drone-rpc-secret.yaml
+  copy:
+    content: |
+      ---
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: drone-rpc-secret
+        namespace: {{ drone.namespace }}
+        labels:
+          app: drone
+      type: Opaque
+      stringData: 
+        rpc-secret: {{ drone_rpc_secret.stdout }}
+    dest: /home/kubeadmin/drone/drone-rpc-secret.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: kubectl apply -f /home/kubeadmin/drone/drone-rpc-secret.yaml
+  shell: |
+    kubectl apply -f /home/kubeadmin/drone/drone-rpc-secret.yaml
+  become: true
+  become_user: kubeadmin
 
 - name: create file /home/kubeadmin/drone/drone-deployment.yaml
   copy:
@@ -108,9 +138,12 @@
               - name: DRONE_GITEA_SERVER
                 value: "{{ drone.gitea.server }}"
               - name: DRONE_GITEA_SKIP_VERIFY
-                value: "true"
+                value: "{{ drone.gitea.skip_verify }}"
               - name: DRONE_RPC_SECRET
-                value: "{{ drone.rpc_secret }}"
+                valueFrom:
+                  secretKeyRef:
+                    name: drone-rpc-secret
+                    key: rpc-secret
               - name: DRONE_SERVER_HOST
                 value: "{{ drone.ui.host }}"
               - name: DRONE_SERVER_PROTO
