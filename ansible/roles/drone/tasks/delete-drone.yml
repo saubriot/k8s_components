@@ -1,0 +1,29 @@
+---
+# file: roles/drone/tasks/delete-drone.yml
+
+- name: delete ui nginx ingress
+  shell: kubectl delete -f /home/kubeadmin/drone/drone-nginx.yaml
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: kubectl delete -f /home/kubeadmin/drone/drone-deployment.yaml
+  shell: |
+    kubectl delete -f /home/kubeadmin/drone/drone-deployment.yaml
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: kubectl delete -f /home/kubeadmin/drone/drone-pvc.yaml
+  shell: |
+    kubectl delete -f /home/kubeadmin/drone/drone-pvc.yaml
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: kubectl delete -f /home/kubeadmin/drone/drone-service.yaml
+  shell: |
+    kubectl delete -f /home/kubeadmin/drone/drone-service.yaml
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true

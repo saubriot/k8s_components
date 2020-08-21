@@ -16,7 +16,7 @@
           port: 80
           targetPort: 80
         selector:
-          app: gitea
+          app: drone
         clusterIP: None
       ---
       apiVersion: v1
@@ -52,7 +52,7 @@
         name: drone-pv-claim
         namespace: {{ drone.namespace }}
         labels:
-          app: gitea
+          app: drone
       spec:
         accessModes:
           - ReadWriteOnce
@@ -107,10 +107,14 @@
                 value: "{{ drone.gitea.client_secret }}"
               - name: DRONE_GITEA_SERVER
                 value: "{{ drone.gitea.server }}"
+              - name: DRONE_GITEA_SKIP_VERIFY
+                value: "true"
               - name: DRONE_RPC_SECRET
                 value: "{{ drone.rpc_secret }}"
               - name: DRONE_SERVER_HOST
                 value: "{{ drone.ui.host }}"
+              - name: DRONE_SERVER_PROTO
+                value: "https"
               ports:
               - containerPort: 80
                 name: drone-http
@@ -153,7 +157,7 @@
             paths:
             - path: /
               backend:
-                serviceName: gitea-http
+                serviceName: drone-http
                 servicePort: 80
     dest: /home/kubeadmin/drone/drone-nginx.yaml
   become: true
