@@ -9,8 +9,6 @@ drone:
 
   gitea:
     skip_verify: true # if using self signed certificates
-    client_id: 153aac09-8967-4568-9574-7f035df84d02
-    client_secret: cnZp135y3EndLQhzRHWvyWwrBSpR9pGeuwwQ8z5QrOc=
     server: https://gitea.k8s.europe
 
   persistence:

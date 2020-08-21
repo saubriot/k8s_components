@@ -164,9 +164,9 @@
               name: drone
               env:
               - name: DRONE_GITEA_CLIENT_ID
-                value: "{{ drone.gitea.client_id }}"
+                value: "{{ GITEA_CLIENT_ID }}"
               - name: DRONE_GITEA_CLIENT_SECRET
-                value: "{{ drone.gitea.client_secret }}"
+                value: "{{ GITEA_CLIENT_SECRET }}"
               - name: DRONE_GITEA_SERVER
                 value: "{{ drone.gitea.server }}"
               - name: DRONE_GITEA_SKIP_VERIFY
