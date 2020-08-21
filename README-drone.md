@@ -82,8 +82,8 @@ ansible-playbook -i inventories/demo drone.yml --extra-vars="operation=install t
 ansible-playbook -i inventories/demo drone.yml --extra-vars="operation=install task=namespace" -u vagrant
 ansible-playbook -i inventories/demo drone.yml --extra-vars="operation=install task=stolon" -u vagrant
 ansible-playbook -i inventories/demo drone.yml --extra-vars="operation=install task=cfssl" -u vagrant
-ansible-playbook -i inventories/demo drone.yml --extra-vars="operation=install task=drone" -u vagrant
-ansible-playbook -i inventories/demo drone-runner.yml --extra-vars="operation=install task=drone GITEA_CLIENT_ID=153aac09-8967-4568-9574-7f035df84d02  GITEA_CLIENT_SECRET=3Z3mGJTGe6kkAMlnwYcURD9G9ARGNMANCP6XkJf-Fgk=" -u vagrant
+ansible-playbook -i inventories/demo drone.yml --extra-vars="operation=install task=drone GITEA_CLIENT_ID=153aac09-8967-4568-9574-7f035df84d02  GITEA_CLIENT_SECRET=3Z3mGJTGe6kkAMlnwYcURD9G9ARGNMANCP6XkJf-Fgk=" -u vagrant
+ansible-playbook -i inventories/demo drone.yml --extra-vars="operation=install task=drone-runner" -u vagrant
 ```
 Delete Drone & Drone Runner :
 ```

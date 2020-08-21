@@ -7,3 +7,10 @@
   become: true
   become_user: kubeadmin
   ignore_errors: true
+
+- name: install gitea namespace "{{ drone.runner.namespace }}"
+  shell: |
+    kubectl create namespace {{ drone.runner.namespace }}
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true

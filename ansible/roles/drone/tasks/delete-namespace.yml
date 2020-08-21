@@ -1,6 +1,13 @@
 ---
 # file: roles/drone/tasks/delete-namespace.yml
 
+- name: delete namespace "{{ drone.runner.namespace }}"
+  shell: |
+    kubectl delete namespace {{ drone.runner.namespace }}
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
 - name: delete namespace "{{ drone.namespace }}"
   shell: |
     kubectl delete namespace {{ drone.namespace }}
