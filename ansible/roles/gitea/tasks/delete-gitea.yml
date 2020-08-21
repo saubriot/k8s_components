@@ -2,19 +2,19 @@
 # file: roles/gitea/tasks/delete-gitea.yml
 
 - name: drop user {{ gitea.db.user }}
-  shell: kubectl exec -it -n gitea gitea-stolon-keeper-0  -- psql "postgresql://postgres:psspss@gitea-stolon-proxy" -c "revoke all privileges on database {{ gitea.db.name }} from {{ gitea.db.user }};"
+  shell: kubectl exec -it -n gitea gitea-stolon-keeper-0  -- psql "postgresql://{{ gitea.stolon.superuserUsername }}:{{ gitea.stolon.superuserPassword }}@gitea-stolon-proxy" -c "revoke all privileges on database {{ gitea.db.name }} from {{ gitea.db.user }};"
   become: true
   become_user: kubeadmin
   ignore_errors: true
 
 - name: drop database {{ gitea.db.name }}
-  shell: kubectl exec -it -n gitea gitea-stolon-keeper-0  -- psql "postgresql://postgres:psspss@gitea-stolon-proxy" -c "drop database {{ gitea.db.name }};"
+  shell: kubectl exec -it -n gitea gitea-stolon-keeper-0  -- psql "postgresql://{{ gitea.stolon.superuserUsername }}:{{ gitea.stolon.superuserPassword }}@gitea-stolon-proxy" -c "drop database {{ gitea.db.name }};"
   become: true
   become_user: kubeadmin
   ignore_errors: true
 
 - name: drop user {{ gitea.db.user }}
-  shell: kubectl exec -it -n gitea gitea-stolon-keeper-0  -- psql "postgresql://postgres:psspss@gitea-stolon-proxy" -c "drop user {{ gitea.db.user }};"
+  shell: kubectl exec -it -n gitea gitea-stolon-keeper-0  -- psql "postgresql://{{ gitea.stolon.superuserUsername }}:{{ gitea.stolon.superuserPassword }}@gitea-stolon-proxy" -c "drop user {{ gitea.db.user }};"
   become: true
   become_user: kubeadmin
   ignore_errors: true
