@@ -104,6 +104,8 @@
               env:
               - name: APP_NAME
                 value: "{{ gitea.app }}"
+              - name: OFFLINE_MODE
+                value: "True"
               - name: DOMAIN
                 value: "{{ gitea.domain }}"
               - name: ROOT_URL
@@ -162,7 +164,10 @@
         name: gitea-nginx
         namespace: {{ gitea.namespace }}
         annotations:
-          kubernetes.io/ingress.class: nginx
+          kubernetes.io/ingress.class: nginx      
+          nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
+          nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+          nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
       spec:
         tls:
         - secretName: tls-secret
@@ -196,7 +201,7 @@
   register: result
 #  until: result.stdout.find("0") != -1
   until: result.stdout == "0"
-  retries: 10
+  retries: 20
   delay: 10
   become: true
   become_user: kubeadmin
