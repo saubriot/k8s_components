@@ -8,9 +8,9 @@
   become_user: kubeadmin
   ignore_errors: true
 
-- name: kubectl delete -f /home/kubeadmin/drone/drone-role.yaml
+- name: kubectl delete -f /home/kubeadmin/drone/drone-runner-role.yaml
   shell: |
-    kubectl delete -f /home/kubeadmin/drone/drone-role.yaml
+    kubectl delete -f /home/kubeadmin/drone/drone-runner-role.yaml
   become: true
   become_user: kubeadmin
   ignore_errors: true
