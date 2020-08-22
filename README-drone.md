@@ -106,6 +106,10 @@ drone:
   runner:
     namespace: drone-runner
     rpc_skip_verify: true # if using self signed certificates
+    resource:
+      limit:
+        cpu: 100
+        memory: 200Mi
 
   gitea:
     skip_verify: true # if using self signed certificates

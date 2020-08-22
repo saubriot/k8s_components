@@ -98,7 +98,11 @@
                 valueFrom:
                   secretKeyRef:
                     name: drone-rpc-secret
-                    key: rpc-secret      
+                    key: rpc-secret
+              - name: DRONE_RESOURCE_LIMIT_CPU
+                value: "{{ drone.runner.resource.limit.cpu }}"
+              - name: DRONE_RESOURCE_LIMIT_MEMORY
+                value: "{{ drone.runner.resource.limit.memory }}"
             serviceAccountName: drone-runner-serviceaccount
     dest: /home/kubeadmin/drone/drone-runner-deployment.yaml
   become: true
