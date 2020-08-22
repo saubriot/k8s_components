@@ -1,6 +1,33 @@
 ---
 # file: roles/gitea/tasks/install-stolon.yml
 
+- name: "label nodes {{ gitea.stolon.affinity.keeper.label }}"
+  shell: |
+    kubectl label nodes {{ item }} {{ gitea.stolon.affinity.keeper.label }}= --overwrite
+  become: true
+  become_user: kubeadmin
+  vars:
+  with_items: "{{ gitea.stolon.affinity.keeper.nodes }}"
+  when: gitea.stolon.affinity.enabled
+
+- name: "label nodes {{ gitea.stolon.affinity.proxy.label }}"
+  shell: |
+    kubectl label nodes {{ item }} {{ gitea.stolon.affinity.proxy.label }}= --overwrite
+  become: true
+  become_user: kubeadmin
+  vars:
+  with_items: "{{ gitea.stolon.affinity.proxy.nodes }}"
+  when: gitea.stolon.affinity.enabled
+
+- name: "label nodes {{ gitea.stolon.affinity.sentinel.label }}"
+  shell: |
+    kubectl label nodes {{ item }} {{ gitea.stolon.affinity.sentinel.label }}= --overwrite
+  become: true
+  become_user: kubeadmin
+  vars:
+  with_items: "{{ gitea.stolon.affinity.sentinel.nodes }}"
+  when: gitea.stolon.affinity.enabled
+
 - name: mkdir folder /home/kubeadmin/gitea/stolon
   file:
     path: /home/kubeadmin/gitea/stolon
@@ -19,9 +46,50 @@
         size: {{ gitea.stolon.persistence.size }}
       keeper:
         replicaCount: {{ gitea.stolon.keeper.replicaCount }}
+
       proxy:
         replicaCount: {{ gitea.stolon.proxy.replicaCount }}
-      
+
+    dest: /home/kubeadmin/gitea/stolon/config.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/gitea/stolon/config.yaml
+  copy:
+    content: |
+      superuserUsername: {{ gitea.stolon.superuserUsername }}
+      superuserPassword: {{ gitea.stolon.superuserPassword }}
+      replicationPassword: {{ gitea.stolon.replicationPassword }}
+  
+      persistence:
+        size: {{ gitea.stolon.persistence.size }}
+      keeper:
+        replicaCount: {{ gitea.stolon.keeper.replicaCount }}
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: {{ gitea.stolon.affinity.keeper.label }}
+                  operator: Exists
+      proxy:
+        replicaCount: {{ gitea.stolon.proxy.replicaCount }}
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: {{ gitea.stolon.affinity.proxy.label }}
+                  operator: Exists
+      sentinel:
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: {{ gitea.stolon.affinity.sentinel.label }}
+                  operator: Exists
+
     dest: /home/kubeadmin/gitea/stolon/config.yaml
   become: true
   become_user: kubeadmin
@@ -32,4 +100,42 @@
     helm install --namespace {{ gitea.namespace }} {{ gitea.stolon.release }} stable/stolon --values /home/kubeadmin/gitea/stolon/config.yaml
   become: true
   become_user: kubeadmin
+
+- name: Wait for stolon pods become ready
+  shell: kubectl wait --namespace={{ gitea.namespace }} --for=condition=Ready pods --selector=app=stolon --timeout=600s
+  register: stolon_pods_ready
+  become: true
+  become_user: kubeadmin
+
+#- debug: var=stolon_pods_ready.stdout_lines
+
+- name: Wait for psql connection
+  shell: kubectl exec -it -n {{ gitea.namespace }} gitea-stolon-keeper-0  -- psql "postgresql://{{ gitea.stolon.superuserUsername }}:{{ gitea.stolon.superuserPassword }}@gitea-stolon-proxy" -c "" && echo $?
+  register: result
+#  until: result.stdout.find("0") != -1
+  until: result.stdout == "0"
+  retries: 20
+  delay: 10
+  become: true
+  become_user: kubeadmin
+
+#- debug: var=result.stdout
+
+- name: create database {{ gitea.db.name }}
+  shell: kubectl exec -it -n {{ gitea.namespace }} gitea-stolon-keeper-0  -- psql "postgresql://{{ gitea.stolon.superuserUsername }}:{{ gitea.stolon.superuserPassword }}@gitea-stolon-proxy" -c "create database {{ gitea.db.name }};"
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: create user {{ gitea.db.user }}
+  shell: kubectl exec -it -n {{ gitea.namespace }} gitea-stolon-keeper-0  -- psql "postgresql://{{ gitea.stolon.superuserUsername }}:{{ gitea.stolon.superuserPassword }}@gitea-stolon-proxy" -c "create user {{ gitea.db.user }} password '{{ gitea.db.password }}';"
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: grant user {{ gitea.db.user }} database {{ gitea.db.name }}
+  shell: kubectl exec -it -n {{ gitea.namespace }} gitea-stolon-keeper-0  -- psql "postgresql://{{ gitea.stolon.superuserUsername }}:{{ gitea.stolon.superuserPassword }}@gitea-stolon-proxy" -c "grant all privileges on database {{ gitea.db.name }} to {{ gitea.db.user }};"
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
 

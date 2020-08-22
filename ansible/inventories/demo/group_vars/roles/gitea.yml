@@ -19,6 +19,7 @@ gitea:
     password: password
 
   stolon:
+    enabled: true
     release: gitea-stolon
     superuserUsername: postgres
     superuserPassword: password
@@ -31,6 +32,23 @@ gitea:
     proxy:
       replicaCount: 2
 
+    affinity:
+      enabled: true
+      keeper:
+        label: gitea-stolon-node/keeper
+        nodes: 
+          - roma.europe
+          - madrid.europe
+      proxy:
+        label: gitea-stolon-node/proxy
+        nodes: 
+          - roma.europe
+          - madrid.europe
+      sentinel:
+        label: gitea-stolon-node/sentinel
+        nodes: 
+          - roma.europe
+          - madrid.europe
   ca:
     csr_C: EU
     csr_L: paris

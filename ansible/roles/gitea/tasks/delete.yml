@@ -8,7 +8,7 @@
   when: task == "cfssl" or task == "all"
 
 - include_tasks: "roles/gitea/tasks/delete-stolon.yml"
-  when: task == "stolon" or task == "all"
+  when: (task == "stolon" or task == "all") and gitea.stolon.enabled
 
 - include_tasks: "roles/gitea/tasks/delete-repo.yml"
   when: task == "repo" or task == "all"

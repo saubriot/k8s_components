@@ -1,11 +1,56 @@
 ---
 # file: roles/gitea/tasks/delete-stolon.yml
 
+- name: drop user {{ gitea.db.user }}
+  shell: kubectl exec -it -n {{ gitea.namespace }} gitea-stolon-keeper-0  -- psql "postgresql://{{ gitea.stolon.superuserUsername }}:{{ gitea.stolon.superuserPassword }}@gitea-stolon-proxy" -c "revoke all privileges on database {{ gitea.db.name }} from {{ gitea.db.user }};"
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: drop database {{ gitea.db.name }}
+  shell: kubectl exec -it -n {{ gitea.namespace }} gitea-stolon-keeper-0  -- psql "postgresql://{{ gitea.stolon.superuserUsername }}:{{ gitea.stolon.superuserPassword }}@gitea-stolon-proxy" -c "drop database {{ gitea.db.name }};"
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: drop user {{ gitea.db.user }}
+  shell: kubectl exec -it -n {{ gitea.namespace }} gitea-stolon-keeper-0  -- psql "postgresql://{{ gitea.stolon.superuserUsername }}:{{ gitea.stolon.superuserPassword }}@gitea-stolon-proxy" -c "drop user {{ gitea.db.user }};"
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
 - name: helm uninstall stolon
   shell: |
     helm uninstall --namespace {{ gitea.namespace }} {{ gitea.stolon.release }}
   become: true
   become_user: kubeadmin
   ignore_errors: true
+
+- name: "delete label nodes {{ gitea.stolon.affinity.keeper.label }}"
+  shell: |
+    kubectl label nodes {{ item }} {{ gitea.stolon.affinity.keeper.label }}-
+  become: true
+  become_user: kubeadmin
+  vars:
+  with_items: "{{ gitea.stolon.affinity.keeper.nodes }}"
+  when: gitea.stolon.affinity.enabled
+
+- name: "delete label nodes {{ gitea.stolon.affinity.proxy.label }}"
+  shell: |
+    kubectl label nodes {{ item }} {{ gitea.stolon.affinity.proxy.label }}-
+  become: true
+  become_user: kubeadmin
+  vars:
+  with_items: "{{ gitea.stolon.affinity.proxy.nodes }}"
+  when: gitea.stolon.affinity.enabled
+
+- name: "delete label nodes {{ gitea.stolon.affinity.sentinel.label }}"
+  shell: |
+    kubectl label nodes {{ item }} {{ gitea.stolon.affinity.sentinel.label }}-
+  become: true
+  become_user: kubeadmin
+  vars:
+  with_items: "{{ gitea.stolon.affinity.sentinel.nodes }}"
+  when: gitea.stolon.affinity.enabled
 
 
