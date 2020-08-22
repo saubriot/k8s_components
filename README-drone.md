@@ -104,6 +104,7 @@ drone:
   namespace: drone
 
   runner:
+    namespace: drone-runner
     rpc_skip_verify: true # if using self signed certificates
 
   gitea:
