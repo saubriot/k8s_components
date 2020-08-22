@@ -14,7 +14,7 @@ harbor:
       jobservice: 200Mi # default is 1Gi
       database: 200Mi # default is 1Gi
       redis: 200Mi # default is 1Gi
-      trivy: 1Gi # dafault is 5Gi
+      trivy: 1Gi # default is 5Gi
 
   ca:
     csr_C: EU
