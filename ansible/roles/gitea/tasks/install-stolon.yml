@@ -44,6 +44,7 @@
   
       persistence:
         size: {{ gitea.stolon.persistence.size }}
+
       keeper:
         replicaCount: {{ gitea.stolon.keeper.replicaCount }}
 
@@ -63,6 +64,7 @@
   
       persistence:
         size: {{ gitea.stolon.persistence.size }}
+        
       keeper:
         replicaCount: {{ gitea.stolon.keeper.replicaCount }}
         affinity:
@@ -93,6 +95,7 @@
     dest: /home/kubeadmin/gitea/stolon/config.yaml
   become: true
   become_user: kubeadmin
+  when: gitea.stolon.affinity.enabled
 
 - name: helm install stolon
   shell: |
