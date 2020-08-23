@@ -261,7 +261,7 @@
   become_user: kubeadmin
 
 - name: append webhook.SKIP_TLS_VERIFY=true to /data/gitea/conf/app.ini
-  shell: kubectl -n {{ gitea.namespace }} exec $(kubectl -n gitea get pod -l "app=gitea" -o jsonpath="{.items[0].metadata.name}") -- bash -c 'echo -e "[webhook]\nSKIP_TLS_VERIFY = {{ gitea.webhook.skip_tls_verify }}"|tee -a /data/gitea/conf/app.ini'
+  shell: kubectl -n {{ gitea.namespace }} exec $(kubectl -n gitea get pod -l "app=gitea" -o jsonpath="{.items[0].metadata.name}") -- bash -c 'echo -e "[webhook]\nSKIP_TLS_VERIFY = {{ gitea.webhook.skip_tls_verify }}\nDELIVER_TIMEOUT = {{ gitea.webhook.delivery_timeout }}"|tee -a /data/gitea/conf/app.ini'
   become: true
   become_user: kubeadmin
   ignore_errors: true

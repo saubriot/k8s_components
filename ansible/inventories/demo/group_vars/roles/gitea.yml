@@ -12,6 +12,7 @@ gitea:
 
   webhook:
     skip_tls_verify: true
+    delivery_timeout: 60
 
   db:
     name: gitea
