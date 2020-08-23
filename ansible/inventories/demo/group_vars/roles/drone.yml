@@ -29,6 +29,7 @@ drone:
     port: 5432
 
   stolon:
+    enabled: true
     release: drone-stolon
     superuserUsername: postgres
     superuserPassword: password
