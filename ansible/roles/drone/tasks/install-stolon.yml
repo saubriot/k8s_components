@@ -1,6 +1,33 @@
 ---
 # file: roles/drone/tasks/install-stolon.yml
 
+- name: "label nodes {{ drone.stolon.affinity.keeper.label }}"
+  shell: |
+    kubectl label nodes {{ item }} {{ drone.stolon.affinity.keeper.label }}= --overwrite
+  become: true
+  become_user: kubeadmin
+  vars:
+  with_items: "{{ drone.stolon.affinity.keeper.nodes }}"
+  when: drone.stolon.affinity.enabled
+
+- name: "label nodes {{ drone.stolon.affinity.proxy.label }}"
+  shell: |
+    kubectl label nodes {{ item }} {{ drone.stolon.affinity.proxy.label }}= --overwrite
+  become: true
+  become_user: kubeadmin
+  vars:
+  with_items: "{{ drone.stolon.affinity.proxy.nodes }}"
+  when: drone.stolon.affinity.enabled
+
+- name: "label nodes {{ drone.stolon.affinity.sentinel.label }}"
+  shell: |
+    kubectl label nodes {{ item }} {{ drone.stolon.affinity.sentinel.label }}= --overwrite
+  become: true
+  become_user: kubeadmin
+  vars:
+  with_items: "{{ drone.stolon.affinity.sentinel.nodes }}"
+  when: drone.stolon.affinity.enabled
+
 - name: mkdir folder /home/kubeadmin/drone/stolon
   file:
     path: /home/kubeadmin/drone/stolon
@@ -26,10 +53,87 @@
   become: true
   become_user: kubeadmin
 
+- name: create file /home/kubeadmin/drone/stolon/config.yaml
+  copy:
+    content: |
+      superuserUsername: {{ drone.stolon.superuserUsername }}
+      superuserPassword: {{ drone.stolon.superuserPassword }}
+      replicationPassword: {{ drone.stolon.replicationPassword }}
+  
+      persistence:
+        size: {{ drone.stolon.persistence.size }}
+      keeper:
+        replicaCount: {{ drone.stolon.keeper.replicaCount }}
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: {{ drone.stolon.affinity.keeper.label }}
+                  operator: Exists
+      proxy:
+        replicaCount: {{ drone.stolon.proxy.replicaCount }}
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: {{ drone.stolon.affinity.proxy.label }}
+                  operator: Exists
+      sentinel:
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: {{ drone.stolon.affinity.sentinel.label }}
+                  operator: Exists
+
+    dest: /home/kubeadmin/drone/stolon/config.yaml
+  become: true
+  become_user: kubeadmin
+  when: drone.stolon.affinity.enabled
+
 - name: helm install stolon
   shell: |
     helm repo add stable https://kubernetes-charts.storage.googleapis.com
     helm install --namespace {{ drone.namespace }} {{ drone.stolon.release }} stable/stolon --values /home/kubeadmin/drone/stolon/config.yaml
   become: true
   become_user: kubeadmin
+
+- name: Wait for stolon pods become ready
+  shell: kubectl wait --namespace={{ drone.namespace }} --for=condition=Ready pods --selector=app=stolon --timeout=600s
+  register: stolon_pods_ready
+  become: true
+  become_user: kubeadmin
+
+- name: Wait for psql connection
+  shell: kubectl exec -it -n {{ drone.namespace }} drone-stolon-keeper-0  -- psql "postgresql://{{ drone.stolon.superuserUsername }}:{{ drone.stolon.superuserPassword }}@drone-stolon-proxy" -c "" && echo $?
+  register: result
+#  until: result.stdout.find("0") != -1
+  until: result.stdout == "0"
+  retries: 20
+  delay: 10
+  become: true
+  become_user: kubeadmin
+
+#- debug: var=result.stdout
+
+- name: create database {{ drone.db.name }}
+  shell: kubectl exec -it -n {{ drone.namespace }} drone-stolon-keeper-0  -- psql "postgresql://{{ drone.stolon.superuserUsername }}:{{ drone.stolon.superuserPassword }}@drone-stolon-proxy" -c "create database {{ drone.db.name }};"
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: create user {{ drone.db.user }}
+  shell: kubectl exec -it -n {{ drone.namespace }} drone-stolon-keeper-0  -- psql "postgresql://{{ drone.stolon.superuserUsername }}:{{ drone.stolon.superuserPassword }}@drone-stolon-proxy" -c "create user {{ drone.db.user }} password '{{ drone.db.password }}';"
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: grant user {{ drone.db.user }} database {{ drone.db.name }}
+  shell: kubectl exec -it -n {{ drone.namespace }} drone-stolon-keeper-0  -- psql "postgresql://{{ drone.stolon.superuserUsername }}:{{ drone.stolon.superuserPassword }}@drone-stolon-proxy" -c "grant all privileges on database {{ drone.db.name }} to {{ drone.db.user }};"
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
 

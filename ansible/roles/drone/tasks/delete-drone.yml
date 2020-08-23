@@ -28,20 +28,3 @@
   become_user: kubeadmin
   ignore_errors: true
 
-- name: drop user {{ drone.db.user }}
-  shell: kubectl exec -it -n {{ drone.namespace }} drone-stolon-keeper-0  -- psql "postgresql://{{ drone.stolon.superuserUsername }}:{{ drone.stolon.superuserPassword }}@drone-stolon-proxy" -c "revoke all privileges on database {{ drone.db.name }} from {{ drone.db.user }};"
-  become: true
-  become_user: kubeadmin
-  ignore_errors: true
-
-- name: drop database {{ drone.db.name }}
-  shell: kubectl exec -it -n {{ drone.namespace }} drone-stolon-keeper-0  -- psql "postgresql://{{ drone.stolon.superuserUsername }}:{{ drone.stolon.superuserPassword }}@drone-stolon-proxy" -c "drop database {{ drone.db.name }};"
-  become: true
-  become_user: kubeadmin
-  ignore_errors: true
-
-- name: drop user {{ drone.db.user }}
-  shell: kubectl exec -it -n {{ drone.namespace }} drone-stolon-keeper-0  -- psql "postgresql://{{ drone.stolon.superuserUsername }}:{{ drone.stolon.superuserPassword }}@drone-stolon-proxy" -c "drop user {{ drone.db.user }};"
-  become: true
-  become_user: kubeadmin
-  ignore_errors: true

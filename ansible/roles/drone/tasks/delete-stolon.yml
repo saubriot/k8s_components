@@ -1,11 +1,58 @@
 ---
 # file: roles/drone/tasks/delete-stolon.yml
 
+- name: drop user {{ drone.db.user }}
+  shell: kubectl exec -it -n {{ drone.namespace }} drone-stolon-keeper-0  -- psql "postgresql://{{ drone.stolon.superuserUsername }}:{{ drone.stolon.superuserPassword }}@drone-stolon-proxy" -c "revoke all privileges on database {{ drone.db.name }} from {{ drone.db.user }};"
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: drop database {{ drone.db.name }}
+  shell: kubectl exec -it -n {{ drone.namespace }} drone-stolon-keeper-0  -- psql "postgresql://{{ drone.stolon.superuserUsername }}:{{ drone.stolon.superuserPassword }}@drone-stolon-proxy" -c "drop database {{ drone.db.name }};"
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: drop user {{ drone.db.user }}
+  shell: kubectl exec -it -n {{ drone.namespace }} drone-stolon-keeper-0  -- psql "postgresql://{{ drone.stolon.superuserUsername }}:{{ drone.stolon.superuserPassword }}@drone-stolon-proxy" -c "drop user {{ drone.db.user }};"
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
 - name: helm uninstall stolon
   shell: |
     helm uninstall --namespace {{ drone.namespace }} {{ drone.stolon.release }}
   become: true
   become_user: kubeadmin
   ignore_errors: true
+
+- name: "delete label nodes {{ drone.stolon.affinity.keeper.label }}"
+  shell: |
+    kubectl label nodes {{ item }} {{ drone.stolon.affinity.keeper.label }}-
+  become: true
+  become_user: kubeadmin
+  vars:
+  with_items: "{{ drone.stolon.affinity.keeper.nodes }}"
+  when: drone.stolon.affinity.enabled
+
+- name: "delete label nodes {{ drone.stolon.affinity.proxy.label }}"
+  shell: |
+    kubectl label nodes {{ item }} {{ drone.stolon.affinity.proxy.label }}-
+  become: true
+  become_user: kubeadmin
+  vars:
+  with_items: "{{ drone.stolon.affinity.proxy.nodes }}"
+  when: drone.stolon.affinity.enabled
+
+- name: "delete label nodes {{ drone.stolon.affinity.sentinel.label }}"
+  shell: |
+    kubectl label nodes {{ item }} {{ drone.stolon.affinity.sentinel.label }}-
+  become: true
+  become_user: kubeadmin
+  vars:
+  with_items: "{{ drone.stolon.affinity.sentinel.nodes }}"
+  when: drone.stolon.affinity.enabled
+
+
 
 
