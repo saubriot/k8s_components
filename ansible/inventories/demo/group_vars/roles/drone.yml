@@ -15,8 +15,8 @@ drone:
   gitea:
     skip_verify: true # if using self signed certificates
     server: https://gitea.k8s.europe
-    client_id: 65876b43-2a74-46bc-b45c-dc36330e761a
-    client_secret: YoxDHo3PZJg7R2WuShOmDjzNhgjtpbPyO-hSTw6MTlU=
+    client_id: 3695ee5c-1ed6-431b-8aad-5bf45a1fcc66
+    client_secret: gdcj3aaVaOp_dutBkqkPvArJlSLg5qE0BM2fEOUuHRY=
 
   persistence:
     size: 200Mi
@@ -36,10 +36,33 @@ drone:
 
     persistence:
       size: 400Mi
+
     keeper:
       replicaCount: 2
+
     proxy:
       replicaCount: 2
+
+    affinity:
+      enabled: false
+      keeper:
+        label: drone-stolon-node/keeper
+        nodes: 
+          - madrid.europe
+          - roma.europe
+          - lisboa.europe
+      proxy:
+        label: drone-stolon-node/proxy
+        nodes: 
+          - madrid.europe
+          - roma.europe
+          - lisboa.europe
+      sentinel:
+        label: drone-stolon-node/sentinel
+        nodes: 
+          - madrid.europe
+          - roma.europe
+          - lisboa.europe
 
   ca:
     csr_C: EU
