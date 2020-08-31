@@ -39,17 +39,17 @@ gitea:
         label: gitea-stolon-node/keeper
         nodes: 
           - roma.europe
-          - madrid.europe
+          - berlin.europe
       proxy:
         label: gitea-stolon-node/proxy
         nodes: 
           - roma.europe
-          - madrid.europe
+          - berlin.europe
       sentinel:
         label: gitea-stolon-node/sentinel
         nodes: 
           - roma.europe
-          - madrid.europe
+          - berlin.europe
   ca:
     csr_C: EU
     csr_L: paris

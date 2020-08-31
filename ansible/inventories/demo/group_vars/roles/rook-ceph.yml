@@ -9,12 +9,12 @@ rook_ceph:
     osd: 3
     replica: 2
   nodes: 
+    - paris.europe
+    - berlin.europe
     - roma.europe
-    - madrid.europe
-    - lisboa.europe
   label:
-    nodes_key: role
-    nodes_value: storage-node
+    nodes_key: rook-ceph-node
+    nodes_value: storage
   ui:
     csr_CN: rook-ceph.k8s.europe
     host: rook-ceph.k8s.europe

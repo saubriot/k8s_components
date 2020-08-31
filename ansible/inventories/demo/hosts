@@ -2,7 +2,7 @@
 paris.europe ansible_host=192.168.10.10
 
 [rook-ceph-nodes]
+paris.europe ansible_host=192.168.10.10
+berlin.europe ansible_host=192.168.10.11
 roma.europe ansible_host=192.168.10.12
-madrid.europe ansible_host=192.168.10.13
-lisboa.europe ansible_host=192.168.10.14
 

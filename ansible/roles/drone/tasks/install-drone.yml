@@ -203,8 +203,6 @@
                 value: "{{ drone.gitea.client_secret }}"
               - name: DRONE_GITEA_SERVER
                 value: "{{ drone.gitea.server }}"
-              - name: DRONE_GITEA_SERVER
-                value: "{{ drone.gitea.server }}"
               - name: DRONE_GITEA_SKIP_VERIFY
                 value: "{{ drone.gitea.skip_verify }}"
               - name: DRONE_RPC_SECRET
