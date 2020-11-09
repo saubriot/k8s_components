@@ -1,0 +1,8 @@
+---
+# file: elk.yml
+- hosts: kubeadmin
+  become: true
+  roles:
+    - elk
+  vars_files:
+    - "{{ inventory_dir }}/group_vars/roles/elk.yml"  

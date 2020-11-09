@@ -1,0 +1,16 @@
+---
+# file: roles/elk/tasks/delete-kibana-dashboard.yml
+
+- name: delete kibana nginx ingress
+  shell: kubectl delete -f /home/kubeadmin/elk/kibana-nginx.yaml
+  become: true
+  become_user: kubeadmin
+  ignore_errors: yes
+
+- name: delete secret tls-secret
+  shell: kubectl delete secret tls-secret -n {{ kibana.namespace }}
+  become: true
+  become_user: kubeadmin
+  ignore_errors: yes
+
+

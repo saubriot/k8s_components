@@ -1,0 +1,17 @@
+---
+# file: roles/elk/tasks/delete.yml
+
+- include_tasks: "delete-kibana-ui.yml"
+  when: task == "kibana-ui" or task == "all"
+
+- include_tasks: "delete-kibana.yml"
+  when: task == "kibana" or task == "all"
+
+- include_tasks: "delete-elastic.yml"
+  when: task == "elastic" or task == "all"
+
+- include_tasks: "delete-label-nodes.yml"
+  when: task == "label-nodes" or task == "all"
+
+- include_tasks: "delete-eck.yml"
+  when: task == "eck" or task == "all"

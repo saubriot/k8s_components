@@ -1,0 +1,72 @@
+---
+# file: roles/elk/tasks/install-kibana-ui.yml
+
+- name: create file /home/kubeadmin/cfssl/kibana-csr.json
+  copy:
+    content: |
+      {
+          "CN": "{{ kibana.ui.csr_CN }}",
+          "hosts": [
+              "{{ kibana.ui.host }}"
+          ],
+          "key": {
+              "algo": "rsa",
+              "size": 2048
+          },
+          "names": [
+              {
+                  "C": "{{ kibana.ca.csr_C }}",
+                  "L": "{{ kibana.ca.csr_L }}",
+                  "ST": "{{ kibana.ca.csr_ST }}"
+              }
+          ]
+      }
+    dest: /home/kubeadmin/cfssl/kibana-csr.json
+  become: true
+  become_user: kubeadmin
+
+- name: cfssl gencert
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=web-servers kibana-csr.json | cfssljson -bare kibana
+  become: true
+  become_user: kubeadmin
+
+- name: create secret tls-secret
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    kubectl create secret tls tls-secret --key ./kibana-key.pem --cert kibana.pem -n {{ kibana.namespace }}
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/elk/kibana-nginx.yaml
+  copy:
+    content: |
+      apiVersion: extensions/v1beta1
+      kind: Ingress
+      metadata:
+        name: kibana-nginx
+        namespace: {{ kibana.namespace }}
+        annotations:
+          kubernetes.io/ingress.class: nginx
+          #nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+          #nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+      spec:
+        tls:
+        - secretName: tls-secret
+        rules:
+        - host: {{ kibana.ui.host }}
+          http:
+            paths:
+            - path: /
+              backend:
+                serviceName: {{ elastic.name }}-kb-http
+                servicePort: 5601
+    dest: /home/kubeadmin/elk/kibana-nginx.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: apply kibana ui nginx ingress
+  shell: kubectl apply -f /home/kubeadmin/elk/kibana-nginx.yaml
+  become: true
+  become_user: kubeadmin

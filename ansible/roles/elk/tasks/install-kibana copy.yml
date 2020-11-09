@@ -1,0 +1,43 @@
+---
+# file: roles/elk/tasks/install-kibana.yml
+
+- name: create file /home/kubeadmin/elk/{{ elastic.name }}-kb.yaml
+  copy:
+    content: |
+      apiVersion: kibana.k8s.elastic.co/v1beta1
+      kind: Kibana
+      metadata:
+        name: {{ elastic.name }}
+      spec:
+        version: {{ kibana.version }}
+        count: {{ kibana.count }}
+        podTemplate:
+          spec:
+            containers:
+            - name: kibana
+              env:
+              - name: ES_JAVA_OPTS
+                value: -Xms{{ kibana.java_opts.xms }} -Xmx{{ kibana.java_opts.xmx }}
+              resources:
+                requests:
+                  memory: {{ kibana.requests.memory }}
+                  cpu: {{ kibana.requests.cpu }}
+                limits:
+                  memory: {{ kibana.limits.memory }}
+                  cpu: {{ kibana.limits.cpu }}
+        config:
+          server.ssl.enabled: false
+        elasticsearchRef:
+          name: {{ elastic.name }}
+        http:
+          tls:
+            selfSignedCertificate:
+              disabled: true
+    dest: /home/kubeadmin/elk/elastic-{{ elastic.name }}-kb.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: apply kibana
+  shell: kubectl apply -f /home/kubeadmin/elk/elastic-{{ elastic.name }}-kb.yaml
+  become: true
+  become_user: kubeadmin

@@ -1,0 +1,7 @@
+- name: "label cluster nodes {{ elastic.label.nodes_key }}:{{ elastic.label.nodes_value }}"
+  shell: |
+    kubectl label nodes {{ item }} {{ elastic.label.nodes_key }}={{ elastic.label.nodes_value }} --overwrite
+  become: true
+  become_user: kubeadmin
+  vars:
+  with_items: "{{ elastic.nodes }}"

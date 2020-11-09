@@ -1,0 +1,11 @@
+---
+# file: roles/elk/tasks/delete-elastic.yml
+
+- name: delete elastic "{{ elastic.name }}"
+  shell: |
+    cd /home/kubeadmin/elk
+    kubectl delete -f elastic-{{ elastic.name }}.yaml
+    #kubectl delete ns {{ elastic.namespace }}
+  become: true
+  become_user: kubeadmin
+

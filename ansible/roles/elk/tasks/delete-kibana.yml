@@ -1,0 +1,10 @@
+---
+# file: roles/elk/tasks/delete-kibana.yml
+
+- name: delete kibana
+  shell: kubectl delete -f /home/kubeadmin/elk/elastic-{{ elastic.name }}-kb.yaml
+  become: true
+  become_user: kubeadmin
+  ignore_errors: yes
+
+

@@ -1,0 +1,5 @@
+---
+# file: roles/elk/tasks/check.yml
+
+- include_tasks: "check-kibana-ui-login.yml"
+  when: task == "kibana-ui-login" or task == "all"

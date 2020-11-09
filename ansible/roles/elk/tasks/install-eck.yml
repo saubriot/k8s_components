@@ -1,0 +1,14 @@
+---
+# file: roles/elk/tasks/install-eck.yml
+
+- name: create folder /home/kubeadmin/elk
+  file:
+    path: /home/kubeadmin/elk
+    state: directory
+  become: true
+  become_user: kubeadmin
+
+- name: install eck (elastic cloud on kubernetes)
+  shell: kubectl apply -f https://download.elastic.co/downloads/eck/{{ eck.version }}/all-in-one.yaml
+  become: true
+  become_user: kubeadmin

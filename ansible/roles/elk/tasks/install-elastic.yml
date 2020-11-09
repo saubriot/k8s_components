@@ -1,0 +1,43 @@
+---
+# file: roles/elk/tasks/install-elastic.yml
+
+- name: create file /home/kubeadmin/elk/{{ elastic.name }}-es.yaml
+  copy:
+    dest: /home/kubeadmin/elk/elastic-{{ elastic.name }}-es.yaml
+    content: |
+      apiVersion: elasticsearch.k8s.elastic.co/v1beta1
+      kind: Elasticsearch
+      metadata:
+        name: {{ elastic.name }}
+        namespace: {{ elastic.namespace }}
+      spec:
+        version: {{ elastic.version }}
+        nodeSets:
+        - name: default
+          count: {{ elastic.count }}
+          config:
+            node.master: true
+            node.data: true
+            node.ingest: true
+            node.store.allow_mmap: false
+          volumeClaimTemplates:
+          - metadata:
+              name: {{ elastic.volume_name }}
+            spec:
+              accessModes:
+              - ReadWriteOnce
+              resources:
+                requests:
+                  storage: {{ elastic.volume_size }}
+              storageClassName: {{ elastic.storage_class }}
+  become: true
+  become_user: kubeadmin
+
+- name: install cluster "{{ elastic.name }}"
+  shell: |
+    cd /home/kubeadmin/elk
+    kubectl create ns {{ elastic.namespace }}
+    kubectl apply -f elastic-{{ elastic.name }}-es.yaml
+  become: true
+  become_user: kubeadmin
+

@@ -1,0 +1,14 @@
+---
+# file: roles/elk/tasks/delete-eck.yml
+
+- name: delete eck (elastic cloud on kubernetes)
+  shell: kubectl delete -f https://download.elastic.co/downloads/eck/{{ eck.version }}/all-in-one.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: rm folder /home/kubeadmin/elk
+  file:
+    path: /home/kubeadmin/elk
+    state: absent
+  become: true
+  become_user: kubeadmin

@@ -1,0 +1,17 @@
+---
+# file: roles/elk/tasks/install.yml
+
+- include_tasks: "install-eck.yml"
+  when: task == "eck" or task == "all"
+
+- include_tasks: "install-label-nodes.yml"
+  when: task == "label-nodes" or task == "all"
+
+- include_tasks: "install-elastic.yml"
+  when: task == "elastic" or task == "all"
+
+- include_tasks: "install-kibana.yml"
+  when: task == "kibana" or task == "all"
+
+- include_tasks: "install-kibana-ui.yml"
+  when: task == "kibana-ui" or task == "all"

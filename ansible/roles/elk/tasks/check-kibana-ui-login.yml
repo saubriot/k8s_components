@@ -1,0 +1,24 @@
+---
+# file: roles/rook-ceph/tasks/check-kibana-ui-login.yml
+
+- name: get elastic user password for kibana ui access https://{{ kibana.ui.host }}
+  shell: |
+    kubectl get secret {{ elastic.name }}-es-elastic-user -o=jsonpath='{.data.elastic}' -n {{ elastic.namespace }} | base64 --decode; echo
+  register: admin_user_password_result
+  become: true
+  become_user: kubeadmin
+
+- name: store elastic user password for kibana ui access https://{{ kibana.ui.host }}
+  copy:
+    content: "{{ admin_user_password_result.stdout }}"
+    dest: "/var/log/{{ kibana.ui.host }}"
+
+- name: fetch elastic user password for kibana ui access https://{{ kibana.ui.host }}
+  fetch:
+    src: "/var/log/{{ kibana.ui.host }}"
+    dest: "{{ fetch_directory }}/"
+    flat: yes
+
+- name: copy and paste admin user password printed below
+  debug: 
+    msg: "{{ admin_user_password_result.stdout }}"

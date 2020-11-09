@@ -1,0 +1,65 @@
+---
+# file: roles/elk/tasks/install-elastic.yml
+
+- name: create file /home/kubeadmin/elk/{{ elastic.name }}-es.yaml
+  copy:
+    dest: /home/kubeadmin/elk/elastic-{{ elastic.name }}-es.yaml
+    content: |
+      apiVersion: elasticsearch.k8s.elastic.co/v1beta1
+      kind: Elasticsearch
+      metadata:
+        name: {{ elastic.name }}
+      spec:
+        version: {{ elastic.version }}
+        nodeSets:
+        - name: default
+          count: {{ elastic.count }}
+          podTemplate:
+            spec:
+              affinity:
+                nodeAffinity:
+                  requiredDuringSchedulingIgnoredDuringExecution:
+                    nodeSelectorTerms:
+                      - matchExpressions:
+                        - key: {{ elastic.label.nodes_key }}
+                          operator: In
+                          values:
+                            - "{{ elastic.label.nodes_value }}"
+              containers:
+              - name: elasticsearch
+                env:
+                - name: ES_JAVA_OPTS
+                  value: -Xms{{ elastic.java_opts.xms }} -Xmx{{ elastic.java_opts.xmx }}
+                resources:
+                  requests:
+                    memory: {{ elastic.requests.memory }}
+                    cpu: {{ elastic.requests.cpu }}
+                  limits:
+                    memory: {{ elastic.limits.memory }}
+                    cpu: {{ elastic.limits.cpu }}
+          config:
+            node.master: true
+            node.data: true
+            node.ingest: true
+            node.store.allow_mmap: false
+          volumeClaimTemplates:
+          - metadata:
+              name: {{ elastic.volume_name }}
+            spec:
+              accessModes:
+              - ReadWriteOnce
+              resources:
+                requests:
+                  storage: {{ elastic.volume_size }}
+              storageClassName: {{ elastic.storage_class }}
+  become: true
+  become_user: kubeadmin
+
+- name: install cluster "{{ elastic.name }}"
+  shell: |
+    cd /home/kubeadmin/elk
+    #kubectl create ns {{ elastic.namespace }}
+    kubectl apply -f elastic-{{ elastic.name }}-es.yaml
+  become: true
+  become_user: kubeadmin
+
