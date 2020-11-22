@@ -15,6 +15,29 @@
         nodeSets:
         - name: default
           count: {{ elastic.count }}
+          podTemplate:
+            spec:
+              affinity:
+                nodeAffinity:
+                  requiredDuringSchedulingIgnoredDuringExecution:
+                    nodeSelectorTerms:
+                      - matchExpressions:
+                        - key: {{ elastic.label.nodes_key }}
+                          operator: In
+                          values:
+                            - "{{ elastic.label.nodes_value }}"
+              containers:
+              - name: elasticsearch
+                env:
+                - name: ES_JAVA_OPTS
+                  value: -Xms{{ elastic.java_opts.xms }} -Xmx{{ elastic.java_opts.xmx }}
+                resources:
+                  requests:
+                    memory: {{ elastic.requests.memory }}
+                    cpu: {{ elastic.requests.cpu }}
+                  limits:
+                    memory: {{ elastic.limits.memory }}
+                    cpu: {{ elastic.limits.cpu }}
           config:
             node.master: true
             node.data: true

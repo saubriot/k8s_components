@@ -15,6 +15,20 @@
         elasticsearchRef:
           name: {{ elastic.name }}
           namespace: {{ elastic.namespace }}
+        podTemplate:
+          spec:
+            containers:
+            - name: kibana
+              env:
+              - name: ES_JAVA_OPTS
+                value: -Xms{{ kibana.java_opts.xms }} -Xmx{{ kibana.java_opts.xmx }}
+              resources:
+                requests:
+                  memory: {{ kibana.requests.memory }}
+                  cpu: {{ kibana.requests.cpu }}
+                limits:
+                  memory: {{ kibana.limits.memory }}
+                  cpu: {{ kibana.limits.cpu }}
         config:
           server.ssl.enabled: false
         http:
