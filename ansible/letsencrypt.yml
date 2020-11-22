@@ -1,0 +1,8 @@
+---
+# file: letsencrypt.yml
+- hosts: kubeadmin
+  become: true
+  roles:
+    - letsencrypt
+  vars_files:
+    - "{{ inventory_dir }}/group_vars/roles/letsencrypt.yml"
