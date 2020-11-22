@@ -12,3 +12,20 @@
     path: "{{ rook_ceph.storagePath }}"
     state: absent
   become: true
+  when: rook_ceph.useDirectories
+
+- name: get rook-ceph volume group
+  shell: |
+    pvdisplay /dev/{{ rook_ceph.rawDevice }}|grep "VG Name"|grep "ceph-"|awk '{print $3;}'
+  register: vgname
+  when: rook_ceph.useRawDevices
+
+- name: rook-ceph vg remove and wipe device
+  shell: |
+    vgremove {{ vgname.stdout }} -f
+    dd if=/dev/zero of=/dev/{{ rook_ceph.rawDevice }} count=1 bs=1k
+  become: true
+  ignore_errors: yes
+  when: vgname.stdout != ""
+
+

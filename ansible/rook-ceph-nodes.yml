@@ -1,6 +1,7 @@
 ---
 # file: rook-ceph-nodes.yml
-- hosts: rook-ceph-nodes
+- hosts: 
+    - rook-ceph-nodes
   become: true
   roles:
     - rook-ceph-nodes

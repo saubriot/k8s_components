@@ -49,6 +49,8 @@
         namespace: rook-ceph
         annotations:
           kubernetes.io/ingress.class: nginx
+          nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+          nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
       spec:
         tls:
         - secretName: tls-secret
@@ -59,7 +61,7 @@
             - path: /
               backend:
                 serviceName: rook-ceph-mgr-dashboard
-                servicePort: dashboard
+                servicePort: https-dashboard
     dest: /home/kubeadmin/rook-ceph/rook-ceph-nginx.yaml
   become: true
   become_user: kubeadmin

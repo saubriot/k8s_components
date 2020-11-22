@@ -1,0 +1,8 @@
+---
+# file: roles/template/tasks/install-apt.yml
+
+- name: install the packages "lvm2, ntpdate"
+  apt:
+    pkg: 
+    - lvm2
+    - ntpdate

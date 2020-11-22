@@ -3,3 +3,6 @@
 
 - include_tasks: "roles/rook-ceph-nodes/tasks/install-mount-points.yml"
   when: task == "mount-points" or task == "all"
+
+- include_tasks: "roles/rook-ceph-nodes/tasks/install-apt.yml"
+  when: task == "apt" or task == "all"
