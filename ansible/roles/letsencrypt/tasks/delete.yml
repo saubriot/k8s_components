@@ -1,0 +1,17 @@
+---
+# file: roles/letsencrypt/tasks/delete.yml
+
+- include_tasks: "roles/letsencrypt/tasks/delete-nginx.yml"
+  when: task == "nginx" or task == "all"
+
+- include_tasks: "roles/letsencrypt/tasks/delete-issuer-http01.yml"
+  when: (task == "issuer" or task == "all") and letsencrypt.acme.http01.enabled
+
+- include_tasks: "roles/letsencrypt/tasks/delete-cert-manager.yml"
+  when: task == "cert-manager" or task == "all"
+
+- include_tasks: "roles/letsencrypt/tasks/delete-namespace.yml"
+  when: task == "namespace" or task == "all"
+
+- include_tasks: "roles/letsencrypt/tasks/delete-repo.yml"
+  when: task == "repo" or task == "all"

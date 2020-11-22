@@ -1,0 +1,7 @@
+---
+# file: roles/letsencrypt/tasks/delete-repo.yml
+
+- name: rm folder /home/kubeadmin/letsencrypt
+  file:
+    path: /home/kubeadmin/letsencrypt
+    state: absent

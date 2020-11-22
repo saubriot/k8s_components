@@ -1,0 +1,10 @@
+---
+# file: roles/letsencrypt/tasks/delete-cert-manager.yml
+
+- name: kubectl delete -f https://github.com/jetstack/cert-manager/releases/download/v1.0.4/cert-manager.yaml
+  shell: |
+    kubectl delete -f https://github.com/jetstack/cert-manager/releases/download/v1.0.4/cert-manager.yaml
+  become: true
+  ignore_errors: true
+  become_user: kubeadmin
+

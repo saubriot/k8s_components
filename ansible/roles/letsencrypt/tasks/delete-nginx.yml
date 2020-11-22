@@ -1,0 +1,35 @@
+---
+# file: roles/letsencrypt/tasks/delete-nginx.yml
+
+- name: kubectl delete -f /home/kubeadmin/letsencrypt/nginx-ingress-staging.yaml -n {{ letsencrypt.namespace }}
+  shell: |
+    kubectl delete -f /home/kubeadmin/letsencrypt/nginx-ingress-staging.yaml -n {{ letsencrypt.namespace }}
+  become: true
+  ignore_errors: true
+  become_user: kubeadmin
+  when: letsencrypt.staging
+
+- name: kubectl delete -f /home/kubeadmin/letsencrypt/nginx-ingress-prod.yaml -n {{ letsencrypt.namespace }}
+  shell: |
+    kubectl delete -f /home/kubeadmin/letsencrypt/nginx-ingress-prod.yaml -n {{ letsencrypt.namespace }}
+  become: true
+  ignore_errors: true
+  become_user: kubeadmin
+  when: letsencrypt.prod
+
+- name: kubectl delete -f /home/kubeadmin/letsencrypt/nginx-service.yaml -n {{ letsencrypt.namespace }}
+  shell: |
+    kubectl delete -f /home/kubeadmin/letsencrypt/nginx-service.yaml -n {{ letsencrypt.namespace }}
+  become: true
+  ignore_errors: true
+  become_user: kubeadmin
+
+- name: kubectl delete -f /home/kubeadmin/letsencrypt/nginx-deployment.yaml -n {{ letsencrypt.namespace }}
+  shell: |
+    kubectl delete -f /home/kubeadmin/letsencrypt/nginx-deployment.yaml -n {{ letsencrypt.namespace }}
+  become: true
+  ignore_errors: true
+  become_user: kubeadmin
+
+
+

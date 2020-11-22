@@ -1,0 +1,11 @@
+---
+# file: roles/letsencrypt/tasks/install-repo.yml
+
+- name: mkdir folder /home/kubeadmin/letsencrypt
+  file:
+    path: /home/kubeadmin/letsencrypt
+    state: directory
+  become: true
+  become_user: kubeadmin
+
+

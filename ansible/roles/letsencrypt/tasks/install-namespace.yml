@@ -1,0 +1,9 @@
+---
+# file: roles/letsencrypt/tasks/install-namespace.yml
+
+- name: create namespace "{{ letsencrypt.namespace }}"
+  shell: |
+    kubectl create namespace {{ letsencrypt.namespace }}
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true

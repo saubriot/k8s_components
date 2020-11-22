@@ -1,0 +1,131 @@
+---
+# file: roles/letsencrypt/tasks/install-nginx.yml
+
+- name: create file /home/kubeadmin/letsencrypt/nginx-deployment.yaml
+  copy:
+    content: |
+      ---
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: nginx-deployment
+      spec:
+        selector:
+          matchLabels:
+            app: nginx
+        replicas: 1
+        template:
+          metadata:
+            labels:
+              app: nginx
+          spec:
+            containers:
+            - name: nginx
+              image: nginx:latest
+              ports:
+              - containerPort: 80
+    dest: /home/kubeadmin/letsencrypt/nginx-deployment.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: kubectl apply -f /home/kubeadmin/letsencrypt/nginx-deployment.yaml -n {{ letsencrypt.namespace }}
+  shell: |
+    kubectl apply -f /home/kubeadmin/letsencrypt/nginx-deployment.yaml -n {{ letsencrypt.namespace }}
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/letsencrypt/nginx-service.yaml
+  copy:
+    content: |
+      ---
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: nginx-http
+      spec:
+        ports:
+        - name: nginx-http
+          port: 80
+          targetPort: 80
+        selector:
+          app: nginx
+        clusterIP: None
+    dest: /home/kubeadmin/letsencrypt/nginx-service.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: kubectl apply -f /home/kubeadmin/letsencrypt/nginx-service.yaml -n {{ letsencrypt.namespace }}
+  shell: |
+    kubectl apply -f /home/kubeadmin/letsencrypt/nginx-service.yaml -n {{ letsencrypt.namespace }}
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/letsencrypt/nginx-ingress-staging.yaml
+  copy:
+    content: |
+      apiVersion: extensions/v1beta1
+      kind: Ingress
+      metadata:
+        name: nginx-ingress-staging
+        annotations:
+          kubernetes.io/ingress.class: "nginx"
+          cert-manager.io/issuer: "letsencrypt-staging-http01"
+      spec:
+        tls:
+        - hosts:
+          {{ingress.tls.hosts | indent(4)}}
+          secretName: {{ ingress.tls.secretName }}-staging
+        rules:
+        - host: {{ ingress.host }}
+          http:
+            paths:
+            - path: /
+              backend:
+                serviceName: nginx-http
+                servicePort: 80      
+    dest: /home/kubeadmin/letsencrypt/nginx-ingress-staging.yaml
+  become: true
+  become_user: kubeadmin
+  when: letsencrypt.staging
+
+- name: kubectl apply -f /home/kubeadmin/letsencrypt/nginx-ingress-staging.yaml -n {{ letsencrypt.namespace }}
+  shell: |
+    kubectl apply -f /home/kubeadmin/letsencrypt/nginx-ingress-staging.yaml -n {{ letsencrypt.namespace }}
+  become: true
+  become_user: kubeadmin
+  when: letsencrypt.staging
+
+- name: create file /home/kubeadmin/letsencrypt/nginx-ingress-prod.yaml
+  copy:
+    content: |
+      apiVersion: extensions/v1beta1
+      kind: Ingress
+      metadata:
+        name: nginx-ingress-prod
+        annotations:
+          kubernetes.io/ingress.class: "nginx"
+          cert-manager.io/issuer: "letsencrypt-prod-http01"
+      spec:
+        tls:
+        - hosts:
+          {{ingress.tls.hosts | indent(4)}}
+          secretName: {{ ingress.tls.secretName }}-prod
+        rules:
+        - host: {{ ingress.host }}
+          http:
+            paths:
+            - path: /
+              backend:
+                serviceName: nginx-http
+                servicePort: 80      
+    dest: /home/kubeadmin/letsencrypt/nginx-ingress-prod.yaml
+  become: true
+  become_user: kubeadmin
+  when: letsencrypt.prod
+
+- name: kubectl apply -f /home/kubeadmin/letsencrypt/nginx-ingress-prod.yaml -n {{ letsencrypt.namespace }}
+  shell: |
+    kubectl apply -f /home/kubeadmin/letsencrypt/nginx-ingress-prod.yaml -n {{ letsencrypt.namespace }}
+  become: true
+  become_user: kubeadmin
+  when: letsencrypt.prod

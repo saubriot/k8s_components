@@ -1,0 +1,70 @@
+---
+# file: roles/letsencrypt/tasks/install-issuer-http01.yml
+
+- name: create file /home/kubeadmin/letsencrypt/staging-issuer-http01.yaml
+  copy:
+    content: |
+      ---
+      apiVersion: cert-manager.io/v1
+      kind: Issuer
+      metadata:
+        name: letsencrypt-staging-http01
+      spec:
+        acme:
+          # The ACME server URL
+          server: https://acme-staging-v02.api.letsencrypt.org/directory
+          # Email address used for ACME registration
+          email: {{ letsencrypt.email }}
+          # Name of a secret used to store the ACME account private key
+          privateKeySecretRef:
+            name: letsencrypt-staging-http01
+          # Enable the HTTP-01 challenge provider
+          solvers:
+          - http01:
+              ingress:
+                class:  nginx
+    dest: /home/kubeadmin/letsencrypt/staging-issuer-http01.yaml
+  become: true
+  become_user: kubeadmin
+  when: letsencrypt.staging
+
+- name: kubectl apply -f /home/kubeadmin/letsencrypt/staging-issuer-http01.yaml -n {{ letsencrypt.namespace }}
+  shell: |
+    kubectl apply -f /home/kubeadmin/letsencrypt/staging-issuer-http01.yaml -n {{ letsencrypt.namespace }}
+  become: true
+  become_user: kubeadmin
+  when: letsencrypt.staging
+
+- name: create file /home/kubeadmin/letsencrypt/prod-issuer-http01.yaml
+  copy:
+    content: |
+      ---
+      apiVersion: cert-manager.io/v1
+      kind: Issuer
+      metadata:
+        name: letsencrypt-prod-http01
+      spec:
+        acme:
+          # The ACME server URL
+          server: https://acme-v02.api.letsencrypt.org/directory
+          # Email address used for ACME registration
+          email: {{ letsencrypt.email }}
+          # Name of a secret used to store the ACME account private key
+          privateKeySecretRef:
+            name: letsencrypt-prod-http01
+          # Enable the HTTP-01 challenge provider
+          solvers:
+          - http01:
+              ingress:
+                class:  nginx
+    dest: /home/kubeadmin/letsencrypt/prod-issuer-http01.yaml
+  become: true
+  become_user: kubeadmin
+  when: letsencrypt.prod
+
+- name: kubectl apply -f /home/kubeadmin/letsencrypt/prod-issuer-http01.yaml -n {{ letsencrypt.namespace }}
+  shell: |
+    kubectl apply -f /home/kubeadmin/letsencrypt/prod-issuer-http01.yaml -n {{ letsencrypt.namespace }}
+  become: true
+  become_user: kubeadmin
+  when: letsencrypt.prod

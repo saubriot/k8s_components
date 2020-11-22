@@ -1,0 +1,9 @@
+---
+# file: roles/letsencrypt/tasks/delete-namespace.yml
+
+- name: delete namespace "{{ letsencrypt.namespace }}"
+  shell: |
+    kubectl delete namespace {{ letsencrypt.namespace }}
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true

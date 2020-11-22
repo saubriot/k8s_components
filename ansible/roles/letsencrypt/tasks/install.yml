@@ -1,0 +1,17 @@
+---
+# file: roles/letsencrypt/tasks/install.yml
+
+- include_tasks: "roles/letsencrypt/tasks/install-repo.yml"
+  when: task == "repo" or task == "all"
+
+- include_tasks: "roles/letsencrypt/tasks/install-namespace.yml"
+  when: task == "namespace" or task == "all"
+
+- include_tasks: "roles/letsencrypt/tasks/install-cert-manager.yml"
+  when: task == "cert-manager" or task == "all"
+
+- include_tasks: "roles/letsencrypt/tasks/install-issuer-http01.yml"
+  when: (task == "issuer" or task == "all") and letsencrypt.acme.http01.enabled
+
+- include_tasks: "roles/letsencrypt/tasks/install-nginx.yml"
+  when: task == "nginx" or task == "all"

@@ -1,0 +1,15 @@
+---
+# file: roles/letsencrypt/tasks/delete-issuer-http01.yml
+
+- name: kubectl delete -f /home/kubeadmin/letsencrypt/prod-issuer-http01.yaml -n {{ letsencrypt.namespace }}
+  shell: |
+    kubectl delete -f /home/kubeadmin/letsencrypt/prod-issuer-http01.yaml -n {{ letsencrypt.namespace }}
+  become: true
+  become_user: kubeadmin
+
+- name: kubectl delete -f /home/kubeadmin/letsencrypt/staging-issuer-http01.yaml -n {{ letsencrypt.namespace }}
+  shell: |
+    kubectl delete -f /home/kubeadmin/letsencrypt/staging-issuer-http01.yaml -n {{ letsencrypt.namespace }}
+  become: true
+  become_user: kubeadmin
+

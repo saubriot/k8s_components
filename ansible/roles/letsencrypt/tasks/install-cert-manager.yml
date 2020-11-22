@@ -1,0 +1,15 @@
+---
+# file: roles/letsencrypt/tasks/install-cert-manager.yml
+
+- name: kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.0.4/cert-manager.yaml
+  shell: |
+    kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.0.4/cert-manager.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: Wait for cert-manager pods become ready
+  shell: kubectl wait --namespace=cert-manager --for=condition=Ready pods --selector=app=cert-manager --timeout=600s
+  register: cert_manager_pods_ready
+  become: true
+  become_user: kubeadmin
+
