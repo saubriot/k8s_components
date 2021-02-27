@@ -1,0 +1,5 @@
+---
+# file: roles/minio-nodes/tasks/clean.yml
+
+- include_tasks: "roles/minio-nodes/tasks/wipe-pv.yml"
+  when: task == "pv" or task == "all"

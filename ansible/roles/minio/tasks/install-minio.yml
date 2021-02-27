@@ -1,0 +1,24 @@
+---
+# file: roles/minio/tasks/install-minio.yml
+
+- name: add minio helm repo
+  shell: |
+    helm repo add minio https://helm.min.io/ 
+    helm repo update
+  become: true
+  become_user: kubeadmin
+
+
+- name: helm install --set resources.requests.memory={{ minio.helm.resources.requests.memory }} --set mode=distributed,replicas={{ minio.helm.replicas }} --generate-name {{ minio.helm.name }} --set persistence.enabled={{ minio.helm.persistence.enabled }} --set persistence.size={{ minio.helm.persistence.size }} --set persistence.storageClass={{ minio.pv.storageClass }} --namespace {{ minio.namespace }}
+  shell: |
+    helm install --set resources.requests.memory={{ minio.helm.resources.requests.memory }} --set mode=distributed,replicas={{ minio.helm.replicas }} --generate-name {{ minio.helm.name }} --set persistence.enabled={{ minio.helm.persistence.enabled }} --set persistence.size={{ minio.helm.persistence.size }} --set persistence.storageClass={{ minio.pv.storageClass }} --namespace {{ minio.namespace }}
+  become: true
+  become_user: kubeadmin
+  when: minio.helm.tls.enabled == "false"
+
+- name: helm install --set tls.enabled=true --set tls.certSecret=tls-secret-minio --set resources.requests.memory={{ minio.helm.resources.requests.memory }} --set mode=distributed,replicas={{ minio.helm.replicas }} --generate-name {{ minio.helm.name }} --set persistence.enabled={{ minio.helm.persistence.enabled }} --set persistence.size={{ minio.helm.persistence.size }} --set persistence.storageClass={{ minio.pv.storageClass }} --namespace {{ minio.namespace }}
+  shell: |
+    helm install --set tls.enabled=true --set tls.certSecret=tls-secret-minio --set resources.requests.memory={{ minio.helm.resources.requests.memory }} --set mode=distributed,replicas={{ minio.helm.replicas }} --generate-name {{ minio.helm.name }} --set persistence.enabled={{ minio.helm.persistence.enabled }} --set persistence.size={{ minio.helm.persistence.size }} --set persistence.storageClass={{ minio.pv.storageClass }} --namespace {{ minio.namespace }}
+  become: true
+  become_user: kubeadmin
+  when: minio.helm.tls.enabled == "true"

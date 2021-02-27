@@ -1,0 +1,6 @@
+---
+# file: roles/minio-nodes/tasks/main.yml
+
+- include_tasks: "clean.yml"
+  tags: clean
+  when: operation == "clean"

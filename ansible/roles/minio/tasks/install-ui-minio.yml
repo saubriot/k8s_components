@@ -1,0 +1,44 @@
+---
+# file: roles/minio/tasks/install-ui-minio.yml
+
+- name: get helm deployment name
+  shell: |
+    helm list --namespace {{ minio.namespace }}|awk '{ print $1; }'|tail -1 
+  become: true
+  become_user: kubeadmin
+  register: helm_name_result
+
+- name: create file /home/kubeadmin/minio/ingress-minio.yaml
+  copy:
+    content: |
+      apiVersion: extensions/v1beta1
+      kind: Ingress
+      metadata:
+        name: minio-browser-nginx
+        namespace: {{ minio.namespace }}
+        annotations:
+          kubernetes.io/ingress.class: nginx
+          nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+          nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+          nginx.ingress.kubernetes.io/proxy-body-size: "{{ minio.ui.maxUploadSize }}"
+          nginx.org/client-max-body-size: "{{ minio.ui.maxUploadSize }}"
+      spec:
+        tls:
+        - secretName: tls-secret-minio-ingress
+        rules:
+        - host: {{ minio.tls.host }}
+          http:
+            paths:
+            - path: /
+              backend:
+                serviceName: {{ helm_name_result.stdout }}
+                servicePort: 9000   
+    dest: /home/kubeadmin/minio/ingress-minio.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: kubectl apply -f /home/kubeadmin/minio/ingress-minio.yaml
+  shell: |
+    kubectl apply -f /home/kubeadmin/minio/ingress-minio.yaml 
+  become: true
+  become_user: kubeadmin

@@ -1,0 +1,30 @@
+---
+# file: roles/minio/tasks/delete-cfssl.yml
+
+- name: rm files /home/kubeadmin/cfssl/minio*
+  file:
+    path: /home/kubeadmin/cfssl/{{ item }}
+    state: absent
+  loop:
+    - minio-console-csr.json  
+    - minio-console-key.pem  
+    - minio-console.csr  
+    - minio-console.pem
+    - minio-browser-csr.json  
+    - minio-browser-key.pem  
+    - minio-browser.csr  
+    - minio-browser.pem    
+    - minio-api-csr.json  
+    - minio-api-key.pem  
+    - minio-api.csr  
+    - minio-api.pem    
+
+- name: delete secrets tls-secret-console tls-secret-browser tls-secret-api
+  shell: |
+    kubectl delete secret tls-secret-browser -n {{ minio.namespace }}
+    kubectl delete secret tls-secret-console -n {{ minio.namespace }}
+    kubectl delete secret tls-secret-minio -n {{ minio.namespace }}
+    kubectl delete secret tls-secret-minio-ingress -n {{ minio.namespace }}
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true

@@ -1,0 +1,9 @@
+---
+# file: minio-nodes.yml
+- hosts: 
+    - minio-nodes
+  become: true
+  roles:
+    - minio-nodes
+  vars_files:
+    - "{{ inventory_dir }}/group_vars/roles/minio.yml"

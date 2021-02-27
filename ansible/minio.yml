@@ -1,0 +1,9 @@
+---
+# file: minio.yml
+- hosts: 
+    - kubeadmin
+  become: true
+  roles:
+    - minio
+  vars_files:
+    - "{{ inventory_dir }}/group_vars/roles/minio.yml"

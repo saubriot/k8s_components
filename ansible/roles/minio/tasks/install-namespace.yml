@@ -1,0 +1,9 @@
+---
+# file: roles/minio/tasks/install-namespace.yml
+
+- name: install minio namespace "{{ minio.namespace }}"
+  shell: |
+    kubectl create namespace {{ minio.namespace }}
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true

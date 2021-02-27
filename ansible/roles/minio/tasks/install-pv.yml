@@ -1,0 +1,60 @@
+---
+# file: roles/minio/tasks/install-pv.yml
+
+- name: create file /home/kubeadmin/minio/local-storage.yaml
+  copy:
+    content: |
+      apiVersion: storage.k8s.io/v1
+      kind: StorageClass
+      metadata:
+          name: {{ minio.pv.storageClass }}
+      provisioner: kubernetes.io/no-provisioner
+      volumeBindingMode: WaitForFirstConsumer
+    dest: /home/kubeadmin/minio/local-storage.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: kubectl apply -f /home/kubeadmin/minio/local-storage.yaml
+  shell: |
+    kubectl apply -f /home/kubeadmin/minio/local-storage.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/minio/pv-create....yaml
+  copy:
+    content: |
+      apiVersion: v1
+      kind: PersistentVolume
+      metadata:
+        name: {{item.name }}
+      spec:
+        capacity:
+          storage: {{ item.size }}
+        volumeMode: Filesystem
+        accessModes:
+        - ReadWriteOnce
+        persistentVolumeReclaimPolicy: Delete
+        storageClassName: {{ minio.pv.storageClass }}
+        local:
+          path: {{ item.device }}
+        nodeAffinity:
+          required:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - {{ item.host }}
+    dest: /home/kubeadmin/minio/pv-create-{{ item.name }}.yaml
+  become: true
+  become_user: kubeadmin
+  vars:
+  with_items: "{{ minio.pv.nodes }}"
+
+- name: kubectl apply -f /home/kubeadmin/minio/pv-create....yaml
+  shell: |
+    kubectl apply -f /home/kubeadmin/minio/pv-create-{{ item.name }}.yaml
+  become: true
+  become_user: kubeadmin
+  vars:
+  with_items: "{{ minio.pv.nodes }}"

@@ -1,0 +1,9 @@
+---
+# file: roles/minio/tasks/install-namespace.yml
+
+- name: delete minio namespace "{{ minio.namespace }}"
+  shell: |
+    kubectl delete namespace {{ minio.namespace }}
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true

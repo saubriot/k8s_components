@@ -1,0 +1,10 @@
+---
+# file: roles/minio/tasks/main.yml
+
+- include_tasks: "install.yml"
+  tags: install
+  when: operation == "install"
+
+- include_tasks: "delete.yml"
+  tags: delete
+  when: operation == "delete"

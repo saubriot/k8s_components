@@ -1,0 +1,21 @@
+---
+# file: roles/template/tasks/wipe-pv.yml
+
+- name: wipe devices
+  shell: |
+    wipefs {{ item.device }}
+    dd if=/dev/zero of={{ item.device }} count=1 bs=1k
+  become: true
+  ignore_errors: yes
+  vars:
+  with_items: "{{ minio.pv.nodes }}"
+  when: item.host == ansible_fqdn and minio.pv.wipe
+
+- name: format devices
+  shell: |
+    mkfs.{{ minio.pv.format }} {{ item.device }} -F
+  become: true
+  ignore_errors: yes
+  vars:
+  with_items: "{{ minio.pv.nodes }}"
+  when: item.host == ansible_fqdn and minio.pv.wipe
