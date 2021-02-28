@@ -1,0 +1,61 @@
+---
+# file: roles/minio/tasks/install-cfssl-minio-tls.yml
+
+- name: create file /home/kubeadmin/cfssl/minio-tls-csr.json
+  copy:
+    content: |
+      {
+          "CN": "{{ minio.helm.name }}.{{ minio.namespace }}.svc.cluster.local",
+          "hosts": [
+              "{{ minio.helm.name }}-0.{{ minio.namespace }}.svc.cluster.local",
+              "{{ minio.helm.name }}-1.{{ minio.namespace }}.svc.cluster.local",
+              "{{ minio.helm.name }}-2.{{ minio.namespace }}.svc.cluster.local",
+              "{{ minio.helm.name }}-3.{{ minio.namespace }}.svc.cluster.local",
+              "{{ minio.helm.name }}-4.{{ minio.namespace }}.svc.cluster.local",
+              "{{ minio.helm.name }}-5.{{ minio.namespace }}.svc.cluster.local",
+              "{{ minio.helm.name }}-6.{{ minio.namespace }}.svc.cluster.local",
+              "{{ minio.helm.name }}-7.{{ minio.namespace }}.svc.cluster.local",
+              "{{ minio.helm.name }}-8.{{ minio.namespace }}.svc.cluster.local",
+              "{{ minio.helm.name }}-0.minio-svc.{{ minio.namespace }}.svc.cluster.local",
+              "{{ minio.helm.name }}-1.minio-svc.{{ minio.namespace }}.svc.cluster.local",
+              "{{ minio.helm.name }}-2.minio-svc.{{ minio.namespace }}.svc.cluster.local",
+              "{{ minio.helm.name }}-3.minio-svc.{{ minio.namespace }}.svc.cluster.local",
+              "{{ minio.helm.name }}-4.minio-svc.{{ minio.namespace }}.svc.cluster.local",
+              "{{ minio.helm.name }}-5.minio-svc.{{ minio.namespace }}.svc.cluster.local",
+              "{{ minio.helm.name }}-6.minio-svc.{{ minio.namespace }}.svc.cluster.local",
+              "{{ minio.helm.name }}-7.minio-svc.{{ minio.namespace }}.svc.cluster.local",
+              "{{ minio.helm.name }}-8.minio-svc.{{ minio.namespace }}.svc.cluster.local"
+          ],
+          "key": {
+              "algo": "rsa",
+              "size": 2048
+          },
+          "names": [
+              {
+                  "C": "{{ minio.tls.ca.csr_C }}",
+                  "L": "{{ minio.tls.ca.csr_L }}",
+                  "ST": "{{ minio.tls.ca.csr_ST }}"
+              }
+          ]
+      }
+    dest: /home/kubeadmin/cfssl/minio-tls-csr.json
+  become: true
+  become_user: kubeadmin
+
+- name: cfssl gencert
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=web-servers minio-tls-csr.json | cfssljson -bare minio-tls
+  become: true
+  become_user: kubeadmin
+
+- name: create secret generic tls-secret-minio
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    cp minio-tls-key.pem private.key
+    cp minio-tls.pem public.crt
+    kubectl create secret generic tls-secret-minio --from-file private.key --from-file public.crt -n {{ minio.namespace }}
+    rm private.key
+    rm public.crt
+  become: true
+  become_user: kubeadmin

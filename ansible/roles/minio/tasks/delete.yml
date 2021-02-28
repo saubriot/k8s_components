@@ -1,18 +1,24 @@
 ---
 # file: roles/minio/tasks/delete.yml
 
+- include_tasks: "roles/minio/tasks/delete-ui-minio.yml"
+  when: task == "ui-minio" or task == "ui" or task == "all"
+
 - include_tasks: "roles/minio/tasks/delete-ui-browser.yml"
-  when: task == "ui-browser" or task == "all"
+  when: task == "ui-browser" or task == "ui" or task == "all"
 
 - include_tasks: "roles/minio/tasks/delete-ui-console.yml"
-  when: task == "ui-console" or task == "all"
+  when: task == "ui-console" or task == "ui" or task == "all"
 
 - include_tasks: "roles/minio/tasks/delete-minio.yml"
-  when: task == "minio" or task == "all"
+  when: task == "minio" or task == "ui" or task == "all"
+
+- include_tasks: "roles/minio/tasks/delete-pv.yml"
+  when: task == "pv" or task == "ui" or task == "all"
 
 - include_tasks: "roles/minio/tasks/delete-cfssl.yml"
-  when: task == "cfssl" or task == "all"
+  when: task == "cfssl" or task == "ui" or task == "all"
 
 - include_tasks: "roles/minio/tasks/delete-namespace.yml"
-  when: task == "namespace" or task == "all"
+  when: task == "namespace" or task == "ui" or task == "all"
 

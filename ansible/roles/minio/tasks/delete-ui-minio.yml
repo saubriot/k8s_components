@@ -1,0 +1,9 @@
+---
+# file: roles/minio/tasks/delete-ui-minio.yml
+
+- name: kubectl delete -f /home/kubeadmin/minio/ingress-minio.yaml
+  shell: |
+    kubectl delete -f /home/kubeadmin/minio/ingress-minio.yaml 
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true

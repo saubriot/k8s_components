@@ -1,13 +1,6 @@
 ---
 # file: roles/minio/tasks/install-ui-browser.yml
 
-- name: get helm deployment name
-  shell: |
-    helm list --namespace {{ minio.namespace }}|awk '{ print $1; }'|tail -1 
-  become: true
-  become_user: kubeadmin
-  register: helm_name_result
-
 - name: create file /home/kubeadmin/minio/ingress-browser.yaml
   copy:
     content: |
@@ -31,7 +24,7 @@
             paths:
             - path: /
               backend:
-                serviceName: {{ helm_name_result.stdout }}
+                serviceName: {{ minio.helm.name }}
                 servicePort: 9000   
     dest: /home/kubeadmin/minio/ingress-browser.yaml
   become: true

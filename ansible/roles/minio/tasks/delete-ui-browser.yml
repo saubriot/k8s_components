@@ -1,7 +1,6 @@
 ---
 # file: roles/minio/tasks/delete-ui-browser.yml
 
-
 - name: kubectl delete -f /home/kubeadmin/minio/ingress-browser.yaml
   shell: |
     kubectl delete -f /home/kubeadmin/minio/ingress-browser.yaml 

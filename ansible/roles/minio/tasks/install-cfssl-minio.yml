@@ -1,0 +1,40 @@
+---
+# file: roles/minio/tasks/install-cfssl-minio.yml
+
+- name: create file /home/kubeadmin/cfssl/minio-csr.json
+  copy:
+    content: |
+      {
+          "CN": "{{ minio.tls.minio.csr_CN }}",
+          "hosts": [
+              "{{ minio.tls.minio.host }}"
+          ],
+          "key": {
+              "algo": "rsa",
+              "size": 2048
+          },
+          "names": [
+              {
+                  "C": "{{ minio.tls.ca.csr_C }}",
+                  "L": "{{ minio.tls.ca.csr_L }}",
+                  "ST": "{{ minio.tls.ca.csr_ST }}"
+              }
+          ]
+      }
+    dest: /home/kubeadmin/cfssl/minio-csr.json
+  become: true
+  become_user: kubeadmin
+
+- name: cfssl gencert
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=web-servers minio-csr.json | cfssljson -bare minio
+  become: true
+  become_user: kubeadmin
+
+- name: create secret tls-secret-minio
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    kubectl create secret tls tls-secret-minio-ingress --key ./minio-key.pem --cert minio.pem -n {{ minio.namespace }}
+  become: true
+  become_user: kubeadmin

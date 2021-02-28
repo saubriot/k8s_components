@@ -1,34 +1,9 @@
 ---
 # file: roles/minio/tasks/delete-minio.yml
 
-- name: get helm deployment name
+- name: helm delete {{ minio.helm.name }} --namespace {{ minio.namespace }}
   shell: |
-    helm list --namespace {{ minio.namespace }}|awk '{ print $1; }'|tail -1 
-  become: true
-  become_user: kubeadmin
-  register: helm_name_result
-  ignore_errors: true
-
-- name: helm delete {{ helm_name_result.stdout }} --namespace {{ minio.namespace }}
-  shell: |
-    helm delete {{ helm_name_result.stdout }} --namespace {{ minio.namespace }}
+    helm delete {{ minio.helm.name }} --namespace {{ minio.namespace }}
   become: true
   become_user: kubeadmin
   ignore_errors: true
-
-- name: kubectl delete -f /home/kubeadmin/minio/pv-create....yaml
-  shell: |
-    kubectl delete -f /home/kubeadmin/minio/pv-create-{{ item.name }}.yaml
-  become: true
-  become_user: kubeadmin
-  vars:
-  with_items: "{{ minio.pv.nodes }}"
-  ignore_errors: true
-
-- name: kubectl delete -f /home/kubeadmin/minio/local-storage.yaml
-  shell: |
-    kubectl delete -f /home/kubeadmin/minio/local-storage.yaml
-  become: true
-  become_user: kubeadmin
-  ignore_errors: true
-

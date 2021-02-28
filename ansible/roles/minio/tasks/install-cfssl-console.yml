@@ -1,0 +1,41 @@
+---
+# file: roles/minio/tasks/install-cfssl-console.yml
+
+- name: create file /home/kubeadmin/cfssl/minio-console-csr.json
+  copy:
+    content: |
+      {
+          "CN": "{{ minio.tls.console.csr_CN }}",
+          "hosts": [
+              "{{ minio.tls.console.host }}"
+          ],
+          "key": {
+              "algo": "rsa",
+              "size": 2048
+          },
+          "names": [
+              {
+                  "C": "{{ minio.tls.ca.csr_C }}",
+                  "L": "{{ minio.tls.ca.csr_L }}",
+                  "ST": "{{ minio.tls.ca.csr_ST }}"
+              }
+          ]
+      }
+    dest: /home/kubeadmin/cfssl/minio-console-csr.json
+  become: true
+  become_user: kubeadmin
+
+- name: cfssl gencert
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=web-servers minio-console-csr.json | cfssljson -bare minio-console
+  become: true
+  become_user: kubeadmin
+
+- name: create secret tls-secret-console
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    kubectl create secret tls tls-secret-console --key ./minio-console-key.pem --cert minio-console.pem -n {{ minio.namespace }}
+  become: true
+  become_user: kubeadmin
+
