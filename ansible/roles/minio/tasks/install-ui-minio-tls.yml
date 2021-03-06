@@ -1,0 +1,15 @@
+---
+# file: roles/minio/tasks/install-ui-minio-tls.yml
+
+- name: create secret generic tls-secret-minio
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    cp certif.key private.key
+    cp certif.crt public.crt
+    cp inter.crt ca.pem
+    kubectl create secret generic tls-secret-minio --from-file private.key --from-file public.crt --from-file ca.pem -n {{ minio.namespace }}
+    rm private.key
+    rm public.crt
+    rm ca.pem
+  become: true
+  become_user: kubeadmin

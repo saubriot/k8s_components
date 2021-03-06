@@ -1,61 +1,57 @@
 ---
 # file: roles/minio/tasks/install-cfssl-minio-tls.yml
 
-- name: create file /home/kubeadmin/cfssl/minio-tls-csr.json
+- name: create file /home/kubeadmin/cfssl/certif-ui-minio-local.json
   copy:
     content: |
       {
           "CN": "{{ minio.helm.name }}.{{ minio.namespace }}.svc.cluster.local",
           "hosts": [
-              "{{ minio.helm.name }}-0.{{ minio.namespace }}.svc.cluster.local",
-              "{{ minio.helm.name }}-1.{{ minio.namespace }}.svc.cluster.local",
-              "{{ minio.helm.name }}-2.{{ minio.namespace }}.svc.cluster.local",
-              "{{ minio.helm.name }}-3.{{ minio.namespace }}.svc.cluster.local",
-              "{{ minio.helm.name }}-4.{{ minio.namespace }}.svc.cluster.local",
-              "{{ minio.helm.name }}-5.{{ minio.namespace }}.svc.cluster.local",
-              "{{ minio.helm.name }}-6.{{ minio.namespace }}.svc.cluster.local",
-              "{{ minio.helm.name }}-7.{{ minio.namespace }}.svc.cluster.local",
-              "{{ minio.helm.name }}-8.{{ minio.namespace }}.svc.cluster.local",
-              "{{ minio.helm.name }}-0.minio-svc.{{ minio.namespace }}.svc.cluster.local",
-              "{{ minio.helm.name }}-1.minio-svc.{{ minio.namespace }}.svc.cluster.local",
-              "{{ minio.helm.name }}-2.minio-svc.{{ minio.namespace }}.svc.cluster.local",
-              "{{ minio.helm.name }}-3.minio-svc.{{ minio.namespace }}.svc.cluster.local",
-              "{{ minio.helm.name }}-4.minio-svc.{{ minio.namespace }}.svc.cluster.local",
-              "{{ minio.helm.name }}-5.minio-svc.{{ minio.namespace }}.svc.cluster.local",
-              "{{ minio.helm.name }}-6.minio-svc.{{ minio.namespace }}.svc.cluster.local",
-              "{{ minio.helm.name }}-7.minio-svc.{{ minio.namespace }}.svc.cluster.local",
-              "{{ minio.helm.name }}-8.minio-svc.{{ minio.namespace }}.svc.cluster.local"
+              "*.{{ minio.namespace }}.svc.cluster.local",
+              "*.minio-svc.{{ minio.namespace }}.svc.cluster.local"
           ],
           "key": {
               "algo": "rsa",
-              "size": 2048
-          },
-          "names": [
-              {
-                  "C": "{{ minio.tls.ca.csr_C }}",
-                  "L": "{{ minio.tls.ca.csr_L }}",
-                  "ST": "{{ minio.tls.ca.csr_ST }}"
-              }
-          ]
+              "size": 4096
+          }
       }
-    dest: /home/kubeadmin/cfssl/minio-tls-csr.json
+    dest: /home/kubeadmin/cfssl/certif-ui-minio-local.json
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/cfssl/certif-ui-minio-local-sign.json
+  copy:
+    content: |
+      {
+          "signing": {
+              "default": {
+                  "expiry": "{{ minio.tls.local.ca.expiry }}",
+                  "usages": ["key encipherment", "server auth"]
+              }
+          }
+      }
+    dest: /home/kubeadmin/cfssl/certif-ui-minio-local-sign.json
   become: true
   become_user: kubeadmin
 
 - name: cfssl gencert
   shell: |
     cd /home/kubeadmin/cfssl 
-    cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=web-servers minio-tls-csr.json | cfssljson -bare minio-tls
+    cfssl gencert -ca=inter-local.crt -ca-key=inter-local.key -config=certif-ui-minio-local-sign.json certif-ui-minio-local.json | cfssljson -bare certif-ui-minio-local
+    mv certif-ui-minio-local.pem certif-ui-minio-local.crt
+    mv certif-ui-minio-local-key.pem certif-ui-minio-local.key
   become: true
   become_user: kubeadmin
 
-- name: create secret generic tls-secret-minio
+- name: create secret generic tls-secret-minio-local
   shell: |
     cd /home/kubeadmin/cfssl 
-    cp minio-tls-key.pem private.key
-    cp minio-tls.pem public.crt
-    kubectl create secret generic tls-secret-minio --from-file private.key --from-file public.crt -n {{ minio.namespace }}
+    cp certif-ui-minio-local.key private.key
+    cp certif-ui-minio-local.crt public.crt
+    cp inter-local.crt ca.pem
+    kubectl create secret generic tls-secret-minio-local --from-file private.key --from-file public.crt --from-file ca.pem -n {{ minio.namespace }}
     rm private.key
     rm public.crt
+    rm ca.pem
   become: true
   become_user: kubeadmin

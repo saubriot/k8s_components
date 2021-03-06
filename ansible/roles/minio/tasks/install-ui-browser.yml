@@ -1,6 +1,56 @@
 ---
 # file: roles/minio/tasks/install-ui-browser.yml
 
+- name: create file /home/kubeadmin/cfssl/certif-ui-browser.json
+  copy:
+    content: |
+      {
+          "CN": "{{ minio.tls.browser.cn }}",
+          "hosts": [
+              "{{ minio.tls.browser.host }}",
+          ],
+          "key": {
+              "algo": "rsa",
+              "size": 4096
+          }
+      }
+    dest: /home/kubeadmin/cfssl/certif-ui-browser.json
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/cfssl/certif-ui-browser-sign.json
+  copy:
+    content: |
+      {
+          "signing": {
+              "default": {
+                  "expiry": "{{ minio.tls.browser.ca.expiry }}",
+                  "usages": ["key encipherment", "server auth"]
+              }
+          }
+      }
+    dest: /home/kubeadmin/cfssl/certif-ui-browser-sign.json
+  become: true
+  become_user: kubeadmin
+
+- name: cfssl gencert
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    cfssl gencert -ca=inter.crt -ca-key=inter.key -config=certif-ui-browser-sign.json certif-ui-browser.json | cfssljson -bare certif-ui-browser
+    mv certif-ui-browser.pem certif-ui-browser.crt
+    mv certif-ui-browser-key.pem certif-ui-browser.key
+  become: true
+  become_user: kubeadmin
+
+
+- name: create secret tls-secret-browser
+  shell: |
+    cd /home/kubeadmin/cfssl 
+    kubectl create secret tls tls-secret-browser --key ./certif-ui-browser.key --cert certif-ui-browser.crt -n {{ minio.namespace }}
+  become: true
+  become_user: kubeadmin
+
+
 - name: create file /home/kubeadmin/minio/ingress-browser.yaml
   copy:
     content: |
@@ -29,6 +79,37 @@
     dest: /home/kubeadmin/minio/ingress-browser.yaml
   become: true
   become_user: kubeadmin
+  when: minio.helm.tls.enabled == "true"
+
+- name: create file /home/kubeadmin/minio/ingress-browser.yaml
+  copy:
+    content: |
+      apiVersion: extensions/v1beta1
+      kind: Ingress
+      metadata:
+        name: minio-browser-nginx
+        namespace: {{ minio.namespace }}
+        annotations:
+          kubernetes.io/ingress.class: nginx
+          nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+          nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+          nginx.ingress.kubernetes.io/proxy-body-size: "{{ minio.ui.maxUploadSize }}"
+          nginx.org/client-max-body-size: "{{ minio.ui.maxUploadSize }}"
+      spec:
+        tls:
+        - secretName: tls-secret-browser
+        rules:
+        - host: {{ minio.tls.browser.host }}
+          http:
+            paths:
+            - path: /
+              backend:
+                serviceName: {{ minio.helm.name }}
+                servicePort: 9000   
+    dest: /home/kubeadmin/minio/ingress-browser.yaml
+  become: true
+  become_user: kubeadmin
+  when: minio.helm.tls.enabled == "false"
 
 - name: kubectl apply -f /home/kubeadmin/minio/ingress-browser.yaml
   shell: |

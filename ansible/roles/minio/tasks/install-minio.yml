@@ -15,9 +15,9 @@
   become_user: kubeadmin
   when: minio.helm.tls.enabled == "false"
 
-- name: helm install {{ minio.helm.name }} minio/minio --set tls.enabled=true --set tls.certSecret=tls-secret-minio --set resources.requests.memory={{ minio.helm.resources.requests.memory }} --set mode=distributed,replicas={{ minio.helm.replicas }} --set persistence.enabled={{ minio.helm.persistence.enabled }} --set persistence.size={{ minio.helm.persistence.size }} --set persistence.storageClass={{ minio.pv.storageClass }} --namespace {{ minio.namespace }}
+- name: helm install {{ minio.helm.name }} minio/minio --set tls.enabled=true --set tls.certSecret=tls-secret-minio-local --set resources.requests.memory={{ minio.helm.resources.requests.memory }} --set mode=distributed,replicas={{ minio.helm.replicas }} --set persistence.enabled={{ minio.helm.persistence.enabled }} --set persistence.size={{ minio.helm.persistence.size }} --set persistence.storageClass={{ minio.pv.storageClass }} --namespace {{ minio.namespace }}
   shell: |
-    helm install {{ minio.helm.name }} minio/minio --set tls.enabled=true --set tls.certSecret=tls-secret-minio --set resources.requests.memory={{ minio.helm.resources.requests.memory }} --set mode=distributed,replicas={{ minio.helm.replicas }} --set persistence.enabled={{ minio.helm.persistence.enabled }} --set persistence.size={{ minio.helm.persistence.size }} --set persistence.storageClass={{ minio.pv.storageClass }} --namespace {{ minio.namespace }}
+    helm install {{ minio.helm.name }} minio/minio --set tls.enabled=true --set tls.certSecret=tls-secret-minio-local --set resources.requests.memory={{ minio.helm.resources.requests.memory }} --set mode=distributed,replicas={{ minio.helm.replicas }} --set persistence.enabled={{ minio.helm.persistence.enabled }} --set persistence.size={{ minio.helm.persistence.size }} --set persistence.storageClass={{ minio.pv.storageClass }} --namespace {{ minio.namespace }}
   become: true
   become_user: kubeadmin
   when: minio.helm.tls.enabled == "true"

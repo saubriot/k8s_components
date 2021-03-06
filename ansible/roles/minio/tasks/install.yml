@@ -10,11 +10,11 @@
 - include_tasks: "roles/minio/tasks/install-helm.yml"
   when: task == "helm" or task == "all"
 
-- include_tasks: "roles/minio/tasks/install-cfssl.yml"
-  when: task == "cfssl" or task == "all"
-
 - include_tasks: "roles/minio/tasks/install-pv.yml"
   when: task == "pv" or task == "all"
+
+- include_tasks: "roles/minio/tasks/install-cfssl-minio-tls.yml"
+  when: task == "cfssl" or task == "all"
 
 - include_tasks: "roles/minio/tasks/install-minio.yml"
   when: task == "minio" or task == "all"
@@ -27,3 +27,6 @@
 
 - include_tasks: "roles/minio/tasks/install-ui-minio.yml"
   when: task == "ui-minio" or task == "all"
+
+- include_tasks: "roles/minio/tasks/install-mc.yml"
+  when: task == "mc" or task == "all"

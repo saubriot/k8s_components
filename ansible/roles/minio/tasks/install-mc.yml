@@ -1,0 +1,76 @@
+include include local---
+# file: roles/minio/tasks/install-mc.yml
+
+- name: create file /home/kubeadmin/minio/admin.json
+  copy:
+    content: |
+      {
+              "Version": "2012-10-17",
+              "Statement": [{
+                              "Action": [
+                                      "admin:*"
+                              ],
+                              "Effect": "Allow",
+                              "Sid": ""
+                      },
+                      {
+                              "Action": [
+                      "s3:*"
+                              ],
+                              "Effect": "Allow",
+                              "Resource": [
+                                      "arn:aws:s3:::*"
+                              ],
+                              "Sid": ""
+                      }
+              ]
+      }
+    dest: /home/kubeadmin/minio/admin.json
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/minio/minio-mc.yaml
+  copy:
+    content: |
+      ---
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: minio-mc
+        namespace: {{ minio.namespace }}
+        labels:
+          app: minio-mc
+      spec:
+        selector:
+          matchLabels:
+            app: minio-mc
+            tier: minio-mc
+        strategy:
+          type: RollingUpdate
+          rollingUpdate:
+            maxSurge: 1
+            maxUnavailable: 0
+        template:
+          metadata:
+            labels:
+              app: minio-mc
+              tier: minio-mc
+          spec:
+            containers:
+            - image: minio/mc
+              name: minio-mc
+              command: ["./mc"]
+              args: ["--version"]
+
+    dest: /home/kubeadmin/minio/minio-mc.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: kubectl apply -f /home/kubeadmin/minio/minio-mc.yaml
+  shell: |
+    kubectl apply -f /home/kubeadmin/minio/minio-mc.yaml 
+  become: true
+  become_user: kubeadmin
+
+
+
