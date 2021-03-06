@@ -19,9 +19,6 @@
 - include_tasks: "roles/minio/tasks/install-minio.yml"
   when: task == "minio" or task == "all"
 
-- include_tasks: "roles/minio/tasks/install-ui-browser.yml"
-  when: task == "ui-browser" or task == "all"
-
 - include_tasks: "roles/minio/tasks/install-ui-console.yml"
   when: task == "ui-console" or task == "all"
 

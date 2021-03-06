@@ -4,9 +4,6 @@
 - include_tasks: "roles/minio/tasks/delete-ui-minio.yml"
   when: task == "ui-minio" or task == "ui" or task == "all"
 
-- include_tasks: "roles/minio/tasks/delete-ui-browser.yml"
-  when: task == "ui-browser" or task == "ui" or task == "all"
-
 - include_tasks: "roles/minio/tasks/delete-ui-console.yml"
   when: task == "ui-console" or task == "ui" or task == "all"
 

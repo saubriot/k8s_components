@@ -1,8 +1,8 @@
 
 # operation (prepare or clean) and task to run
 #
-# use --extra-vars="operation=prepare task=all" when running ansible-playbook
+# use --extra-vars="operation=install task=all" when running ansible-playbook
 #
 
-operation: prepare
+operation: install
 task: all
