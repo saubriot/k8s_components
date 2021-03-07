@@ -1,0 +1,8 @@
+---
+# file: roles/nexus/tasks/delete-minio.yml
+
+- name: kubectl delete -f /home/kubeadmin/nexus/nexus.yaml
+  shell: |
+    kubectl delete -f /home/kubeadmin/nexus/nexus.yaml 
+  become: true
+  become_user: kubeadmin

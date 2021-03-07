@@ -1,0 +1,7 @@
+---
+# file: roles/nexus/tasks/delete-repo.yml
+
+- name: rm folder /home/kubeadmin/nexus
+  file:
+    path: /home/kubeadmin/nexus
+    state: absent

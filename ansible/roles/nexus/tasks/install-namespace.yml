@@ -1,0 +1,9 @@
+---
+# file: roles/nexus/tasks/install-namespace.yml
+
+- name: install nexus namespace "{{ nexus.namespace }}"
+  shell: |
+    kubectl create namespace {{ nexus.namespace }}
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true

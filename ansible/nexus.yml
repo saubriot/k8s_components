@@ -1,0 +1,9 @@
+---
+# file: nexus.yml
+- hosts: 
+    - kubeadmin
+  become: true
+  roles:
+    - nexus
+  vars_files:
+    - "{{ inventory_dir }}/group_vars/roles/nexus.yml"

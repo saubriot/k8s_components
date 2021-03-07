@@ -1,0 +1,9 @@
+---
+# file: roles/delete/tasks/delete-namespace.yml
+
+- name: delete delete namespace "{{ nexus.namespace }}"
+  shell: |
+    kubectl delete namespace {{ nexus.namespace }}
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true

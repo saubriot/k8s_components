@@ -1,0 +1,83 @@
+---
+# file: roles/nexus/tasks/install-nexus.yml
+
+- name: create file /home/kubeadmin/nexus/nexus.yaml
+  copy:
+    content: |
+      ---
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: nexus-pvc
+        namespace: {{ nexus.namespace }}
+        labels:
+          app: nexus
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ nexus.pvc.size }}
+      ---
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: nexus-service
+        namespace: {{ nexus.namespace }}
+      spec:
+        ports:
+        - port: 8081
+          targetPort: 8081
+          protocol: TCP
+          name: http
+        - port: 5000
+          targetPort: 5000
+          protocol: TCP
+          name: docker 
+        selector:
+          app: nexus
+      ---
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: nexus
+        namespace: {{ nexus.namespace }}
+      spec:
+        selector:
+          matchLabels:
+            app: nexus
+            tier: nexus
+        strategy:
+          type: RollingUpdate
+          rollingUpdate:
+            maxSurge: 1
+            maxUnavailable: 0
+        template:
+          metadata:
+            labels:
+              app: nexus
+              tier: nexus
+          spec:
+            containers:
+            - image: sonatype/nexus3
+              imagePullPolicy: Always
+              name: nexus
+              ports:
+              - containerPort: 8081
+              - containerPort: 5000
+              volumeMounts:
+                - mountPath: /nexus-data
+                  name: nexus-data-volume
+            volumes:
+              - name: nexus-data-volume
+                persistentVolumeClaim:
+                  claimName: nexus-pvc
+    dest: /home/kubeadmin/nexus/nexus.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: kubectl apply -f /home/kubeadmin/nexus/nexus.yaml
+  shell: |
+    kubectl apply -f /home/kubeadmin/nexus/nexus.yaml 
+  become: true
+  become_user: kubeadmin

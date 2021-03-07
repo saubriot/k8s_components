@@ -1,0 +1,15 @@
+---
+# file: roles/nexus/tasks/install.yml
+
+- include_tasks: "roles/nexus/tasks/install-repo.yml"
+  when: task == "repo" or task == "all"
+
+- include_tasks: "roles/nexus/tasks/install-namespace.yml"
+  when: task == "namespace" or task == "all"
+
+- include_tasks: "roles/nexus/tasks/install-nexus.yml"
+  when: task == "nexus" or task == "all"
+
+- include_tasks: "roles/nexus/tasks/install-ui.yml"
+  when: task == "ui" or task == "all"
+

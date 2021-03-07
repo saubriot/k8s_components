@@ -1,0 +1,11 @@
+---
+# file: roles/nexus/tasks/install-repo.yml
+
+- name: mkdir folder /home/kubeadmin/nexus
+  file:
+    path: /home/kubeadmin/nexus
+    state: directory
+  become: true
+  become_user: kubeadmin
+
+
