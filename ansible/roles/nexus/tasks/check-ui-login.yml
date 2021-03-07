@@ -1,0 +1,13 @@
+---
+# file: roles/nexus/tasks/check-ui-login.yml
+
+- name: kubectl -n {{ nexus.namespace }} exec -it $(kubectl get pods -n {{ nexus.namespace }}|tail -1|awk '{print $1}') -- cat /nexus-data/admin.password
+  shell: |
+    kubectl -n {{ nexus.namespace }} exec -it $(kubectl get pods -n {{ nexus.namespace }}|tail -1|awk '{print $1}') -- cat /nexus-data/admin.password
+  register: admin_default_password_result
+  become: true
+  become_user: kubeadmin
+
+- name: copy/paste admin default password
+  debug:
+    msg: "{{ admin_default_password_result.stdout }}"
