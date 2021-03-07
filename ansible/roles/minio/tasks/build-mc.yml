@@ -1,0 +1,89 @@
+# file: roles/minio/tasks/build-mc.yml
+
+- name: install the package "gpg"
+  apt:
+    name: gpg
+  become: true
+
+- name: add docker apt signing key
+  apt_key:
+    url: https://download.docker.com/linux/debian/gpg
+    state: present
+  become: true
+
+- name: add apt docker source list
+  shell: echo "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list
+  become: true
+
+- name: apt update
+  apt:
+    update_cache: yes
+  become: true
+
+- name: install packages "docker-ce, docker-ce-cli, containerd.io"
+  apt:
+    pkg:
+    - docker-ce
+    - docker-ce-cli
+    - docker-ce-cli
+    - containerd.io
+  become: true
+
+- name: start docker
+  shell: |
+    usermod -aG docker ansible
+    update-alternatives --set iptables /usr/sbin/iptables-legacy
+    [ ! -f /etc/fstab ] && touch /etc/fstab
+    service docker restart
+  become: true
+  ignore_errors: true
+
+- name: mkdir folder ~/ansible/build/mc
+  file:
+    path: ~/ansible/build/mc
+    state: directory
+  become: true
+  become_user: ansible
+  
+- name: create file ~/ansible/build/mc/Dockerfile
+  copy:
+    content: |
+      FROM golang:1.15-alpine as builder
+      
+      LABEL maintainer="MinIO Inc <dev@min.io>"
+      
+      ENV GOPATH /go
+      ENV CGO_ENABLED 0
+      ENV GO111MODULE on
+      
+      RUN  \
+           apk add --no-cache git && \
+           git clone https://github.com/minio/mc && cd mc && \
+           go install -v -ldflags "$(go run buildscripts/gen-ldflags.go)"
+      
+      FROM registry.access.redhat.com/ubi8/ubi-minimal:8.3
+      
+      ARG TARGETARCH
+      
+      COPY --from=builder /go/bin/mc /usr/bin/mc
+      COPY --from=builder /go/mc/CREDITS /licenses/CREDITS
+      COPY --from=builder /go/mc/LICENSE /licenses/LICENSE
+      
+      RUN  \
+           microdnf update --nodocs && \
+           microdnf install ca-certificates --nodocs && \
+           microdnf clean all
+      
+    dest: ~/ansible/build/mc/Dockerfile
+  become: true
+  become_user: ansible
+    
+- name: docker build
+  shell: |
+    cd ~/ansible/build/mc/
+    docker build . -t k8s/mc
+  become: true
+  become_user: ansible
+
+
+

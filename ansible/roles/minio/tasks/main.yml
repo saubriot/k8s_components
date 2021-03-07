@@ -3,8 +3,16 @@
 
 - include_tasks: "install.yml"
   tags: install
-  when: operation == "install"
+  when: operation == "install" and inventory_hostname != "localhost"
 
 - include_tasks: "delete.yml"
   tags: delete
-  when: operation == "delete"
+  when: operation == "delete" and inventory_hostname != "localhost"
+
+- include_tasks: "check.yml"
+  tags: check
+  when: operation == "check" and inventory_hostname != "localhost"
+
+- include_tasks: "build.yml"
+  tags: build
+  when: operation == "build" and inventory_hostname == "localhost"

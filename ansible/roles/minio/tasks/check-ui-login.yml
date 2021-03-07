@@ -1,0 +1,24 @@
+---
+# file: roles/minio/tasks/check-ui-login.yml
+
+- name: get accesskey secret
+  shell: |
+    kubectl -n {{ minio.namespace }} get secret minio -o yaml| grep accesskey: | grep -v "{}" | awk '{print $2}'
+  register: accesskey_result
+  become: true
+  become_user: kubeadmin
+
+- name: get secretkey secret
+  shell: |
+    kubectl -n {{ minio.namespace }} get secret minio -o yaml| grep secretkey: | grep -v "{}" | awk '{print $2}'
+  register: secretkey_result
+  become: true
+  become_user: kubeadmin
+
+- name: copy/paste accesskey secret
+  debug:
+    msg: "{{ accesskey_result.stdout }}"
+
+- name: copy/paste secretkey secret
+  debug:
+    msg: "{{ secretkey_result.stdout }}"

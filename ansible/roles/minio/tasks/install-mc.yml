@@ -1,5 +1,26 @@
-include include local---
 # file: roles/minio/tasks/install-mc.yml
+
+- name: get accesskey secret
+  shell: |
+    kubectl -n {{ minio.namespace }} get secret minio -o yaml| grep accesskey: | grep -v "{}" | awk '{print $2}'
+  register: accesskey_result
+  become: true
+  become_user: kubeadmin
+
+- name: get secretkey secret
+  shell: |
+    kubectl -n {{ minio.namespace }} get secret minio -o yaml| grep secretkey: | grep -v "{}" | awk '{print $2}'
+  register: secretkey_result
+  become: true
+  become_user: kubeadmin
+
+
+
+- name: set alias {{ minio.namespace }} 
+  shell: |
+    docker run -it k8s/mc /usr/bin/mc alias set {{ minio.namespace }} https://{{ minio.tls.minio.host }} {{ accesskey_result.stdout }} {{ secretkey_result.stdout }} --insecure
+  become: true
+  become_user: ansible
 
 - name: create file /home/kubeadmin/minio/admin.json
   copy:
@@ -28,49 +49,4 @@ include include local---
     dest: /home/kubeadmin/minio/admin.json
   become: true
   become_user: kubeadmin
-
-- name: create file /home/kubeadmin/minio/minio-mc.yaml
-  copy:
-    content: |
-      ---
-      apiVersion: apps/v1
-      kind: Deployment
-      metadata:
-        name: minio-mc
-        namespace: {{ minio.namespace }}
-        labels:
-          app: minio-mc
-      spec:
-        selector:
-          matchLabels:
-            app: minio-mc
-            tier: minio-mc
-        strategy:
-          type: RollingUpdate
-          rollingUpdate:
-            maxSurge: 1
-            maxUnavailable: 0
-        template:
-          metadata:
-            labels:
-              app: minio-mc
-              tier: minio-mc
-          spec:
-            containers:
-            - image: minio/mc
-              name: minio-mc
-              command: ["./mc"]
-              args: ["--version"]
-
-    dest: /home/kubeadmin/minio/minio-mc.yaml
-  become: true
-  become_user: kubeadmin
-
-- name: kubectl apply -f /home/kubeadmin/minio/minio-mc.yaml
-  shell: |
-    kubectl apply -f /home/kubeadmin/minio/minio-mc.yaml 
-  become: true
-  become_user: kubeadmin
-
-
 

@@ -7,3 +7,9 @@
     - minio
   vars_files:
     - "{{ inventory_dir }}/group_vars/roles/minio.yml"
+
+- hosts: 
+    - localhost
+  connection: local
+  roles:
+    - minio
