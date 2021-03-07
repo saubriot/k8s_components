@@ -40,7 +40,7 @@
             enabled: true
         storage:
           useAllNodes: true
-          useAllDevices: false
+          useAllDevices: {{ rook_ceph.useAllDevices }}
           deviceFilter: {{ rook_ceph.deviceFilter }}
         placement:
           all:
@@ -54,64 +54,6 @@
                     - {{ rook_ceph.label.nodes_value }}
   become: true
   become_user: kubeadmin
-  when: rook_ceph.useRawDevices
-
-- name: create file /home/kubeadmin/rook-ceph/my-cluster.yaml
-  copy:
-    dest: /home/kubeadmin/rook-ceph/my-cluster.yaml
-    content: |
-      apiVersion: ceph.rook.io/v1
-      kind: CephCluster
-      metadata:
-        name: rook-ceph
-        namespace: rook-ceph
-      spec:
-        cephVersion:
-          image: {{ rook_ceph.image }}
-          allowUnsupported: false
-        dataDirHostPath: {{ rook_ceph.dataDirHostPath }}
-        skipUpgradeChecks: false
-        mon:
-          count: {{ rook_ceph.count.mon }}
-          allowMultiplePerNode: false
-        dashboard:
-          enabled: true
-          ssl: true
-        crashCollector:
-          disable: false
-        monitoring:
-          enabled: true
-          rulesNamespace: rook-ceph
-        network:
-          hostNetwork: false
-        rbdMirroring:
-          workers: 0
-        annotations:
-        resources:
-        removeOSDsIfOutAndSafeToRemove: false
-        mgr:
-          modules:
-          - name: pg_autoscaler
-            enabled: true
-        storage:
-          useAllNodes: true
-          useAllDevices: false
-          config:
-          directories:
-            - path: {{ rook_ceph.storagePath }}
-        placement:
-          all:
-            nodeAffinity:
-              requiredDuringSchedulingIgnoredDuringExecution:
-                nodeSelectorTerms:
-                - matchExpressions:
-                  - key: {{ rook_ceph.label.nodes_key }}
-                    operator: In
-                    values:
-                    - {{ rook_ceph.label.nodes_value }}
-  become: true
-  become_user: kubeadmin
-  when: rook_ceph.useDirectories
 
 - name: install rook-ceph cluster
   shell: |

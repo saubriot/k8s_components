@@ -8,11 +8,3 @@
     mode: '0755'
   become: true
 
-- name: create folder {{ rook_ceph.storagePath }}
-  file:
-    path: "{{ rook_ceph.storagePath }}"
-    state: directory
-    mode: '0755'
-  become: true
-  when: rook_ceph.useDirectories
-

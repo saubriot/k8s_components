@@ -1,48 +1,58 @@
 ---
 # file: roles/rook-ceph/tasks/install-ui.yml
 
-- name: create file /home/kubeadmin/cfssl/rook-ceph-csr.json
+- name: create file /home/kubeadmin/cfssl/certif-ui-rook-ceph.json
   copy:
     content: |
       {
-          "CN": "{{ rook_ceph.ui.csr_CN }}",
+          "CN": "{{ rook_ceph.ui.cn }}",
           "hosts": [
-              "{{ rook_ceph.ui.host }}"
+              "{{ rook_ceph.ui.host }}",
           ],
           "key": {
               "algo": "rsa",
-              "size": 2048
-          },
-          "names": [
-              {
-                  "C": "{{ rook_ceph.ui.ca.csr_C }}",
-                  "L": "{{ rook_ceph.ui.ca.csr_L }}",
-                  "ST": "{{ rook_ceph.ui.ca.csr_ST }}"
-              }
-          ]
+              "size": 4096
+          }
       }
-    dest: /home/kubeadmin/cfssl/rook-ceph-csr.json
+    dest: /home/kubeadmin/cfssl/certif-ui-rook-ceph.json
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/cfssl/certif-ui-rook-ceph-sign.json
+  copy:
+    content: |
+      {
+          "signing": {
+              "default": {
+                  "expiry": "{{ rook_ceph.ui.ca.expiry }}",
+                  "usages": ["key encipherment", "server auth"]
+              }
+          }
+      }
+    dest: /home/kubeadmin/cfssl/certif-ui-rook-ceph-sign.json
   become: true
   become_user: kubeadmin
 
 - name: cfssl gencert
   shell: |
     cd /home/kubeadmin/cfssl 
-    cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=web-servers rook-ceph-csr.json | cfssljson -bare rook-ceph
+    cfssl gencert -ca=inter.crt -ca-key=inter.key -config=certif-ui-rook-ceph-sign.json certif-ui-rook-ceph.json | cfssljson -bare certif-ui-rook-ceph
+    mv certif-ui-rook-ceph.pem certif-ui-rook-ceph.crt
+    mv certif-ui-rook-ceph-key.pem certif-ui-rook-ceph.key
   become: true
   become_user: kubeadmin
 
-- name: create secret tls-secret
+- name: create secret tls-secret-rook-ceph
   shell: |
     cd /home/kubeadmin/cfssl 
-    kubectl create secret tls tls-secret --key ./rook-ceph-key.pem --cert rook-ceph.pem -n rook-ceph
+    kubectl create secret tls tls-secret-rook-ceph --key ./certif-ui-rook-ceph.key --cert certif-ui-rook-ceph.crt -n rook-ceph
   become: true
   become_user: kubeadmin
 
 - name: create file /home/kubeadmin/rook-ceph/rook-ceph-nginx.yaml
   copy:
     content: |
-      apiVersion: extensions/v1beta1
+      apiVersion: networking.k8s.io/v1
       kind: Ingress
       metadata:
         name: rook-ceph-nginx
@@ -53,15 +63,18 @@
           nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
       spec:
         tls:
-        - secretName: tls-secret
+        - secretName: tls-secret-rook-ceph
         rules:
         - host: {{ rook_ceph.ui.host }}
           http:
             paths:
             - path: /
+              pathType: Prefix
               backend:
-                serviceName: rook-ceph-mgr-dashboard
-                servicePort: https-dashboard
+                service:
+                  name: rook-ceph-mgr-dashboard
+                  port: 
+                    name: https-dashboard
     dest: /home/kubeadmin/rook-ceph/rook-ceph-nginx.yaml
   become: true
   become_user: kubeadmin
