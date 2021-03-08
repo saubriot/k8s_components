@@ -1,48 +1,58 @@
 ---
 # file: roles/prometheus/tasks/grafana-ui-install.yml
 
-- name: create file /home/kubeadmin/cfssl/grafana-csr.json
+- name: create file /home/kubeadmin/cfssl/certif-ui-grafana.json
   copy:
     content: |
       {
-          "CN": "{{ grafana.ui.csr_CN }}",
+          "CN": "{{ grafana.tls.cn }}",
           "hosts": [
-              "{{ grafana.ui.host }}"
+              "{{ grafana.tls.host }}",
           ],
           "key": {
               "algo": "rsa",
-              "size": 2048
-          },
-          "names": [
-              {
-                  "C": "{{ grafana.ca.csr_C }}",
-                  "L": "{{ grafana.ca.csr_L }}",
-                  "ST": "{{ grafana.ca.csr_ST }}"
-              }
-          ]
+              "size": 4096
+          }
       }
-    dest: /home/kubeadmin/cfssl/grafana-csr.json
+    dest: /home/kubeadmin/cfssl/certif-ui-grafana.json
+  become: true
+  become_user: kubeadmin
+
+- name: create file /home/kubeadmin/cfssl/certif-ui-grafana-sign.json
+  copy:
+    content: |
+      {
+          "signing": {
+              "default": {
+                  "expiry": "{{ grafana.tls.ca.expiry }}",
+                  "usages": ["key encipherment", "server auth"]
+              }
+          }
+      }
+    dest: /home/kubeadmin/cfssl/certif-ui-grafana-sign.json
   become: true
   become_user: kubeadmin
 
 - name: cfssl gencert
   shell: |
     cd /home/kubeadmin/cfssl 
-    cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=web-servers grafana-csr.json | cfssljson -bare grafana
+    cfssl gencert -ca=inter.crt -ca-key=inter.key -config=certif-ui-grafana-sign.json certif-ui-grafana.json | cfssljson -bare certif-ui-grafana
+    mv certif-ui-grafana.pem certif-ui-grafana.crt
+    mv certif-ui-grafana-key.pem certif-ui-grafana.key
   become: true
   become_user: kubeadmin
 
-- name: create secret tls-secret
+- name: create secret tls-secret-grafana
   shell: |
     cd /home/kubeadmin/cfssl 
-    kubectl create secret tls tls-secret --key ./grafana-key.pem --cert grafana.pem -n monitoring
+    kubectl create secret tls tls-secret-grafana --key ./certif-ui-grafana.key --cert certif-ui-grafana.crt -n monitoring
   become: true
   become_user: kubeadmin
 
 - name: create file /home/kubeadmin/prometheus/grafana-nginx.yaml
   copy:
     content: |
-      apiVersion: extensions/v1beta1
+      apiVersion: networking.k8s.io/v1
       kind: Ingress
       metadata:
         name: grafana-nginx
@@ -51,15 +61,18 @@
           kubernetes.io/ingress.class: nginx
       spec:
         tls:
-        - secretName: tls-secret
+        - secretName: tls-secret-grafana
         rules:
-        - host: {{ grafana.ui.host }}
+        - host: {{ grafana.tls.host }}
           http:
             paths:
             - path: /
+              pathType: Prefix
               backend:
-                serviceName: grafana
-                servicePort: 3000
+                service:
+                  name: grafana
+                  port: 
+                    number: 3000
     dest: /home/kubeadmin/prometheus/grafana-nginx.yaml
   become: true
   become_user: kubeadmin

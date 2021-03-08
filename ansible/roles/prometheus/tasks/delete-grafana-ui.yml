@@ -7,10 +7,10 @@
   become_user: kubeadmin
   ignore_errors: true
 
-- name: delete secret tls-secret
+- name: delete secret tls-secret-grafana
   shell: |
     cd /home/kubeadmin/cfssl 
-    kubectl delete secret tls-secret -n monitoring
+    kubectl delete secret tls-secret-grafana -n monitoring
   become: true
   become_user: kubeadmin
   ignore_errors: true
