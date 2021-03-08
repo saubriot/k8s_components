@@ -1,0 +1,56 @@
+---
+# file: roles/keycloak/tasks/delete-stolon.yml
+
+- name: drop user {{ keycloak.db.user }}
+  shell: kubectl exec -it -n {{ keycloak.namespace }} keycloak-stolon-keeper-0  -- psql "postgresql://{{ keycloak.stolon.superuserUsername }}:{{ keycloak.stolon.superuserPassword }}@keycloak-stolon-proxy" -c "revoke all privileges on database {{ keycloak.db.name }} from {{ keycloak.db.user }};"
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: drop database {{ keycloak.db.name }}
+  shell: kubectl exec -it -n {{ keycloak.namespace }} keycloak-stolon-keeper-0  -- psql "postgresql://{{ keycloak.stolon.superuserUsername }}:{{ keycloak.stolon.superuserPassword }}@keycloak-stolon-proxy" -c "drop database {{ keycloak.db.name }};"
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: drop user {{ keycloak.db.user }}
+  shell: kubectl exec -it -n {{ keycloak.namespace }} keycloak-stolon-keeper-0  -- psql "postgresql://{{ keycloak.stolon.superuserUsername }}:{{ keycloak.stolon.superuserPassword }}@keycloak-stolon-proxy" -c "drop user {{ keycloak.db.user }};"
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: helm uninstall stolon
+  shell: |
+    helm uninstall --namespace {{ keycloak.namespace }} {{ keycloak.stolon.release }}
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true
+
+- name: "delete label nodes {{ keycloak.stolon.affinity.keeper.label }}"
+  shell: |
+    kubectl label nodes {{ item }} {{ keycloak.stolon.affinity.keeper.label }}-
+  become: true
+  become_user: kubeadmin
+  vars:
+  with_items: "{{ keycloak.stolon.affinity.keeper.nodes }}"
+  when: keycloak.stolon.affinity.enabled
+
+- name: "delete label nodes {{ keycloak.stolon.affinity.proxy.label }}"
+  shell: |
+    kubectl label nodes {{ item }} {{ keycloak.stolon.affinity.proxy.label }}-
+  become: true
+  become_user: kubeadmin
+  vars:
+  with_items: "{{ keycloak.stolon.affinity.proxy.nodes }}"
+  when: keycloak.stolon.affinity.enabled
+
+- name: "delete label nodes {{ keycloak.stolon.affinity.sentinel.label }}"
+  shell: |
+    kubectl label nodes {{ item }} {{ keycloak.stolon.affinity.sentinel.label }}-
+  become: true
+  become_user: kubeadmin
+  vars:
+  with_items: "{{ keycloak.stolon.affinity.sentinel.nodes }}"
+  when: keycloak.stolon.affinity.enabled
+
+

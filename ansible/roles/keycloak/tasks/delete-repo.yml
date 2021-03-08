@@ -1,0 +1,7 @@
+---
+# file: roles/keycloak/tasks/delete-repo.yml
+
+- name: rm folder /home/kubeadmin/keycloak
+  file:
+    path: /home/kubeadmin/keycloak
+    state: absent

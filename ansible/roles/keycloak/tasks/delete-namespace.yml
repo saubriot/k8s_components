@@ -1,0 +1,9 @@
+---
+# file: roles/keycloak/tasks/delete-namespace.yml
+
+- name: delete keycloak namespace "{{ keycloak.namespace }}"
+  shell: |
+    kubectl keycloak namespace {{ keycloak.namespace }}
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true

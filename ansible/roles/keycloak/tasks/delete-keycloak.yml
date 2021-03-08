@@ -1,0 +1,8 @@
+---
+# file: roles/keycloak/tasks/delete-keycloak.yml
+
+- name: kubectl delete -f /home/kubeadmin/keycloak/keycloak.yaml
+  shell: |
+    kubectl delete -f /home/kubeadmin/keycloak/keycloak.yaml 
+  become: true
+  become_user: kubeadmin

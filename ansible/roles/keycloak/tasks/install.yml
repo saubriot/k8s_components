@@ -1,0 +1,18 @@
+---
+# file: roles/keycloak/tasks/install.yml
+
+- include_tasks: "roles/keycloak/tasks/install-repo.yml"
+  when: task == "repo" or task == "all"
+
+- include_tasks: "roles/keycloak/tasks/install-namespace.yml"
+  when: task == "namespace" or task == "all"
+
+- include_tasks: "roles/keycloak/tasks/install-stolon.yml"
+  when: task == "stolon" or task == "all"
+
+- include_tasks: "roles/keycloak/tasks/install-keycloak.yml"
+  when: task == "keycloak" or task == "all"
+
+- include_tasks: "roles/keycloak/tasks/install-ui.yml"
+  when: task == "ui" or task == "all"
+

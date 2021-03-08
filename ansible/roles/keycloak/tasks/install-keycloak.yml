@@ -1,0 +1,79 @@
+---
+# file: roles/keycloak/tasks/install-keycloak.yml
+
+- name: create file /home/kubeadmin/keycloak/keycloak.yaml
+  copy:
+    content: |
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: keycloak
+        namespace: {{ keycloak.namespace }}
+        labels:
+          app: keycloak
+      spec:
+        ports:
+        - name: http
+          port: 8080
+          targetPort: 8080
+        selector:
+          app: keycloak
+        type: LoadBalancer
+      ---
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: keycloak
+        namespace: {{ keycloak.namespace }}
+        labels:
+          app: keycloak
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
+            app: keycloak
+        template:
+          metadata:
+            labels:
+              app: keycloak
+          spec:
+            containers:
+            - name: keycloak
+              image: quay.io/keycloak/keycloak:12.0.4
+              env:
+              - name: DB_VENDOR
+                value: "POSTGRES"
+              - name: DB_ADDR
+                value: "keycloak-stolon-proxy:5432"
+              - name: DB_DATABASE
+                value: "{{ keycloak.db.name }}"
+              - name: DB_USER
+                value: "{{ keycloak.db.user }}"
+              - name: DB_SCHEMA
+                value: "public"
+              - name: DB_PASSWORD
+                value: "{{ keycloak.db.password }}"
+              - name: KEYCLOAK_USER
+                value: "admin"
+              - name: KEYCLOAK_PASSWORD
+                value: "admin"
+              - name: PROXY_ADDRESS_FORWARDING
+                value: "true"
+              ports:
+              - name: http
+                containerPort: 8080
+              - name: https
+                containerPort: 8443
+              readinessProbe:
+                httpGet:
+                  path: /auth/realms/master
+                  port: 8080
+    dest: /home/kubeadmin/keycloak/keycloak.yaml
+  become: true
+  become_user: kubeadmin
+
+- name: kubectl apply -f /home/kubeadmin/keycloak/keycloak.yaml
+  shell: |
+    kubectl apply -f /home/kubeadmin/keycloak/keycloak.yaml 
+  become: true
+  become_user: kubeadmin

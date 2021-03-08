@@ -1,0 +1,7 @@
+---
+# file: roles/keycloak/tasks/check.yml
+
+- include_tasks: "roles/keycloak/tasks/check-ui-login.yml"
+  when: task == "ui-login" or task == "all"
+
+

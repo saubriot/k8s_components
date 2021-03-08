@@ -1,0 +1,11 @@
+---
+# file: roles/keycloak/tasks/install-repo.yml
+
+- name: mkdir folder /home/kubeadmin/keycloak
+  file:
+    path: /home/kubeadmin/keycloak
+    state: directory
+  become: true
+  become_user: kubeadmin
+
+

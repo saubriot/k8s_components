@@ -1,0 +1,9 @@
+---
+# file: roles/keycloak/tasks/install-namespace.yml
+
+- name: install keycloak namespace "{{ keycloak.namespace }}"
+  shell: |
+    kubectl create namespace {{ keycloak.namespace }}
+  become: true
+  become_user: kubeadmin
+  ignore_errors: true

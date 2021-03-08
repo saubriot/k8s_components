@@ -1,0 +1,9 @@
+---
+# file: keycloak.yml
+- hosts: 
+    - kubeadmin
+  become: true
+  roles:
+    - keycloak
+  vars_files:
+    - "{{ inventory_dir }}/group_vars/roles/keycloak.yml"
